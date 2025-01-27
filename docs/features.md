@@ -29,11 +29,9 @@ Ability to save and load up to 3 preset calculator values.
 #### Image Recognition:
 Chip Recognition Feature:
 Image recognition feature to automatically fill chip color and count fields by prompting the user to take a photo of the poker chips.
-#### Stretch Goals:
-Currency Selector:
+#### Currency Selector:
 Ability to change the currency symbol (e.g., $, €, £, etc.).
-
-Language Selector:
+#### Language Selector:
 Ability to change the application language (English and other commonly desired languages).
 
 
