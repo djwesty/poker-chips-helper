@@ -19,12 +19,12 @@ When selecting one of these colors, the ability to set the number of chips will 
 
 #### Persistance
 - When the app is closed and then opened again, the calculator will present with the same state/values as when it was closed
+- The user will have an ability to easily save and load 3 pre-set calculator values
 
 #### Image recognition
 - The ability to enter the chip color and counts will be made easier with an image recognition feature which attempts to automatically fill this data by prompting for a photo of the poker chips.
 
 
 ## Strech
-- Additional Persistance: The user will have an ability to easily save and load 3 pre-set calculator values
 - The user will be able to change the currency icon from **$** to some other common icons including €, £ and others
 - The user will be able to change the application language from English to one or two other commonly desired languages
