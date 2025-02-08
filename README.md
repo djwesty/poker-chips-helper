@@ -1,18 +1,25 @@
 # Poker Chips Helper
+
 A mobile application to assist a poker host with determining the denominations and distributions of poker chips.
 
-This applications uses the React Native + Expo framework and by extension is primarily implemented in typescript. These frameworks were chosen for their solid reputation, and ability to easily compile to both major platforms (iOS + Android) with a single code base. Typescript is the default language for new projects with these frameworks, but is also preferred over the javascript alternative as strong typings are very helpful to the developer experience. 
+This applications uses the React Native + Expo framework and by extension is primarily implemented in typescript. These frameworks were chosen for their solid reputation, and ability to easily compile to both major platforms (iOS + Android) with a single code base. Typescript is the default language for new projects with these frameworks, but is also preferred over the javascript alternative as strong typings are very helpful to the developer experience.
 
 ## Team Members
-* David Westgate
-* Lakshmi Vyshnavi Vutukuri
-* Mantasha Noyela
+
+- David Westgate
+- Lakshmi Vyshnavi Vutukuri
+- Mantasha Noyela
 
 ## Building, Running, and Developer Resources
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+### VSCode plugins
+
+- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+
+### Get started
 
 1. Install dependencies
 
@@ -35,7 +42,7 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Learn more
+### Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
 
