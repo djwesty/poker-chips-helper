@@ -4,29 +4,29 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
   StyleSheet,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface BuyInSelectorProps {
   setBuyInAmount: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
-const defaultBuyInOptions = [10, 25, 50]; // Default buy-in values
+const defaultBuyInOptions = [10, 25, 50];
 
 const BuyInSelector: React.FC<BuyInSelectorProps> = ({ setBuyInAmount }) => {
   const [customAmount, setCustomAmount] = useState("");
-  const [buyInAmount, setBuyInAmountState] = useState<number | null>(null); // Store the selected amount locally
+  const [buyInAmount, setBuyInAmountState] = useState<number | null>(null);
 
   const handleCustomAmountChange = (value: string) => {
     const numericValue = parseFloat(value);
     if (!isNaN(numericValue) && numericValue >= 0) {
       setCustomAmount(value);
-      setBuyInAmountState(numericValue); // Update buy-in amount
-      setBuyInAmount(numericValue); // Pass it back to parent component
+      setBuyInAmountState(numericValue);
+      setBuyInAmount(numericValue);
     } else {
       setCustomAmount("");
-      setBuyInAmountState(null); // Reset if invalid
+      setBuyInAmountState(null);
       setBuyInAmount(null);
     }
   };
@@ -34,23 +34,16 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({ setBuyInAmount }) => {
   const handleBuyInSelection = (amount: number) => {
     setBuyInAmountState(amount);
     setCustomAmount("");
-    setBuyInAmount(amount); // Pass it back to parent component
+    setBuyInAmount(amount);
   };
 
   return (
     <View style={styles.container}>
-      {/* Title with Money Icon */}
       <View style={styles.header}>
-        <Image
-          source={{
-            uri: "https://png.pngtree.com/png-vector/20191128/ourmid/pngtree-coin-money-icon-png-image_2049478.jpg",
-          }}
-          style={styles.icon}
-        />
+        <MaterialIcons name="monetization-on" size={30} color="green" />
         <Text style={styles.title}>Select Buy-in Amount:</Text>
       </View>
 
-      {/* Default Buy-In Options */}
       <View style={styles.optionsContainer}>
         {defaultBuyInOptions.map((amount) => (
           <TouchableOpacity
@@ -66,7 +59,6 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({ setBuyInAmount }) => {
         ))}
       </View>
 
-      {/* Custom Amount Input */}
       <Text style={styles.orText}>Or enter a custom amount:</Text>
       <TextInput
         style={styles.input}
@@ -76,7 +68,6 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({ setBuyInAmount }) => {
         keyboardType="numeric"
       />
 
-      {/* Display the selected buy-in amount */}
       <Text style={styles.selectionText}>
         Selected Buy-in: {buyInAmount !== null ? buyInAmount : "None"}
       </Text>
@@ -93,13 +84,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  icon: {
-    width: 50,
-    height: 50,
-    marginRight: 15,
-  },
   title: {
     fontSize: 22,
+    marginLeft: 10,
   },
   optionsContainer: {
     flexDirection: "row",
