@@ -86,7 +86,7 @@ const ChipsSelector = ({
   numberOfChips,
   totalChipsCount,
   setTotalChipsCount,
-  setNumberOfChips, // todo
+  setNumberOfChips,
 }: {
   numberOfChips: number;
   totalChipsCount: number[];
@@ -150,14 +150,16 @@ const ChipsSelector = ({
           <Button
             title="-"
             onPress={() => {
-              setNumberOfChips(numberOfChips - 1);
+              setNumberOfChips(Math.max(1, numberOfChips - 1));
             }}
+            disabled={numberOfChips == 1}
           />
           <Button
             title="+"
             onPress={() => {
-              setNumberOfChips(numberOfChips + 1);
+              setNumberOfChips(Math.min(5, numberOfChips + 1));
             }}
+            disabled={numberOfChips == 5}
           />
         </View>
       </View>
