@@ -135,14 +135,31 @@ const ChipsSelector = ({
   return (
     <>
       <View style={styles.container}>
-        {colorsUsed.map((color) => (
-          <Chip
-            key={color.toString()}
-            color={color}
-            count={totalChipsCount[colors.indexOf(color)] ?? 0}
-            setShowModal={setShowModal}
+        <Text style={styles.title}>Chips you have</Text>
+        <View style={styles.chipContainer}>
+          {colorsUsed.map((color) => (
+            <Chip
+              key={color.toString()}
+              color={color}
+              count={totalChipsCount[colors.indexOf(color)] ?? 0}
+              setShowModal={setShowModal}
+            />
+          ))}
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button
+            title="-"
+            onPress={() => {
+              setNumberOfChips(numberOfChips - 1);
+            }}
           />
-        ))}
+          <Button
+            title="+"
+            onPress={() => {
+              setNumberOfChips(numberOfChips + 1);
+            }}
+          />
+        </View>
       </View>
 
       <ChipInputModal
@@ -157,17 +174,32 @@ const ChipsSelector = ({
 
 const styles = StyleSheet.create({
   container: {
+    marginBottom: 20,
+    gap: 10,
+  },
+  title: {
+    fontWeight: "bold",
+    margin: "auto",
+    fontSize: 18,
+  },
+  chipContainer: {
     padding: 20,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#ddd",
+    justifyContent: "space-evenly",
+    backgroundColor: "#bbb",
   },
   chip: {
     textAlign: "center",
     fontSize: 16,
     fontWeight: "bold",
   },
+  buttonContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+  },
+  button: {},
 });
 export default ChipsSelector;
