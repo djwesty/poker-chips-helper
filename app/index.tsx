@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { ScrollView, Text, Alert, Button } from "react-native";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
+import ChipsSelector from "@/components/ChipsSelector";
 
 const IndexScreen = () => {
   const [playerCount, setPlayerCount] = useState(2);
   const [buyInAmount, setBuyInAmount] = useState<number | null>(null);
+  const [numberOfChips, setNumberOfChips] = useState<number>(5);
+  const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
 
   const handleSave = () => {
     if (buyInAmount === null) {
@@ -25,6 +28,13 @@ const IndexScreen = () => {
       />
 
       <BuyInSelector setBuyInAmount={setBuyInAmount} />
+
+      <ChipsSelector
+        totalChipsCount={totalChipsCount}
+        setTotalChipsCount={setTotalChipsCount}
+        numberOfChips={numberOfChips}
+        setNumberOfChips={setNumberOfChips}
+      />
 
       <Button
         title="Save"
