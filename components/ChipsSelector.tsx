@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   Button,
   ColorValue,
@@ -25,27 +24,40 @@ const ChipInputModal = ({
   const color: ColorValue = useMemo(() => showModal[1], [showModal]);
   const colorIdx = useMemo(() => colors.indexOf(color), [color]);
 
-  const value: number = useMemo(
-    () => totalChipsCount[colorIdx],
-    [totalChipsCount, colorIdx]
-  );
+  const [value, setValue] = useState<number | undefined>(); // value may be undefined initially
+
+  // Reset the color value when the specific color this modal is for, changes. The same modal is shared/reused in all cases.
+  useEffect(() => {
+    setValue(totalChipsCount[colorIdx]);
+  }, [colorIdx]);
 
   return (
     <Modal
       visible={showModal[0]}
       onRequestClose={() => setShowModal([false, color])}
     >
-      <Text>Number of {showModal[1]?.toString()} chips</Text>
-      <TextInput
-        style={{ color: showModal[1] }}
-        keyboardType="numeric"
-        value={value.toString()}
-        onChangeText={(v) => {
-          const n = parseInt(v);
-          update(showModal[1], Number.isNaN(n) ? 0 : n);
+      {value !== undefined && (
+        <>
+          <Text>Number of {showModal[1]?.toString()} chips</Text>
+          <TextInput
+            style={{ color: showModal[1] }}
+            keyboardType="numeric"
+            value={value.toString()}
+            onChangeText={(v) => {
+              const dirtyNum: number = parseInt(v);
+              !isNaN(dirtyNum) ? setValue(dirtyNum) : setValue(0);
+            }}
+            testID="modalInput"
+          />
+        </>
+      )}
+      <Button
+        title="Accept"
+        onPress={() => {
+          update(showModal[1], Number.isNaN(value) ? 0 : value);
+          setShowModal([false, color]);
         }}
       />
-      <Button title="Accept" onPress={() => setShowModal([false, color])} />
     </Modal>
   );
 };
@@ -74,7 +86,7 @@ const ChipsSelector = ({
   numberOfChips,
   totalChipsCount,
   setTotalChipsCount,
-  setNumberOfChips,
+  setNumberOfChips, // todo
 }: {
   numberOfChips: number;
   totalChipsCount: number[];
@@ -90,6 +102,7 @@ const ChipsSelector = ({
     [numberOfChips]
   );
 
+  // Callback for ChipInputModal to update the chips in the parents state.
   const update = useCallback(
     (color: ColorValue, count: number) => {
       const newTotalChipsCount = totalChipsCount.slice();
@@ -99,6 +112,8 @@ const ChipsSelector = ({
     },
     [numberOfChips, totalChipsCount, setTotalChipsCount]
   );
+
+  // When the number of chips changes (dec or inc), update the array being careful to add in sensible default values where they belong
   useEffect(() => {
     if (numberOfChips !== totalChipsCount.length) {
       let newTotalChipsCount = totalChipsCount.slice();
@@ -150,7 +165,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
   },
   chip: {
-    // backgroundColor: "blue",
     textAlign: "center",
     fontSize: 16,
     fontWeight: "bold",
