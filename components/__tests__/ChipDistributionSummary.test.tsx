@@ -8,8 +8,7 @@ describe("ChipDistributionSummary Component", () => {
     const totalChipsCount = [100, 200, 300, 400, 500];
     const colors = ["WHITE", "RED", "GREEN", "BLUE", "BLACK"];
 
-    // Update this to match the actual component's chip distribution logic
-    const expectedDistribution = [8, 16, 25, 33, 41]; // Adjust based on actual component calculations
+    const expectedDistribution = [8, 16, 25, 33, 41];
 
     const { getByText } = render(
       <ChipDistributionSummary
@@ -44,7 +43,7 @@ describe("ChipDistributionSummary Component", () => {
       totalChipsCount = totalChipsCount.map(count => Math.round(count * scaleFactor));
     }
 
-    const expectedDistribution = [30, 40, 50, 60, 70]; // Adjust to match actual component calculations
+    const expectedDistribution = [30, 40, 50, 60, 70]; 
     const colors = ["WHITE", "RED", "GREEN", "BLUE", "BLACK"];
 
     const { getByText } = render(
