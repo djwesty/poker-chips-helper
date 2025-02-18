@@ -15,7 +15,9 @@ const ChipDistributionSummary = ({
   totalChipsCount,
   colors = ["white", "red", "green", "blue", "black"],
 }: ChipDistributionSummaryProps) => {
-  const [chipDistribution, setChipDistribution] = useState<number[]>([]);
+  const [chipCountPerPlayer, setChipCountPerPlayer] = useState<
+    Record<string, { count: number; value: number }>
+  >({});
 
   useEffect(() => {
     if (
@@ -23,126 +25,92 @@ const ChipDistributionSummary = ({
       playerCount > 0 &&
       totalChipsCount.every((chips) => chips > 0)
     ) {
-      const chipValues = [0.05, 0.25, 1, 2.5, 5]; // Chip values: white, red, green, blue, black
-      let distribution = [0, 0, 0, 0, 0]; // Number of chips per player for each color
+      const validDenominations = [
+        0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 50, 100,
+      ];
+
+      const availableColors = Math.min(colors.length, 5);
+      let selectedChips: number[] = [];
+      let maxDenomination = buyInAmount / 2;
+
+      // Select the denominations for available colors (up to 5 colors)
+      for (let i = validDenominations.length - 1; i >= 0; i--) {
+        if (
+          validDenominations[i] <= maxDenomination &&
+          selectedChips.length < availableColors
+        ) {
+          selectedChips.unshift(validDenominations[i]);
+        }
+      }
+
+      // Ensure the selected chips are sorted from low to high denomination
+      selectedChips = selectedChips.sort((a, b) => a - b);
+
+      let distribution = new Array(selectedChips.length).fill(0);
       let remainingValue = buyInAmount;
-      let remainingChips = [...totalChipsCount]; // Make a copy of the available chips
+      let remainingChips = [...totalChipsCount.slice(0, selectedChips.length)];
 
-      console.log("Starting distribution with buy-in amount:", buyInAmount);
-      console.log("Player count:", playerCount);
-      console.log("Remaining value to distribute:", remainingValue);
-      console.log("Available chips:", remainingChips);
-
-      // Step 1: Distribute chips from highest to lowest denomination
-      for (let i = chipValues.length - 1; i >= 0; i--) {
-        const chipValue = chipValues[i];
-        const availableChips = remainingChips[i];
-
-        console.log(`Attempting to distribute ${chipValue} chips`);
-
-        // Calculate how many chips we can distribute to each player
-        const maxChipsPerPlayer = Math.min(
-          Math.floor(remainingValue / chipValue), // Max chips based on remaining value
-          Math.floor(availableChips / playerCount) // Max chips based on availability
-        );
-
-        console.log(
-          `Max chips per player for ${chipValue} value: ${maxChipsPerPlayer}`
-        );
-
-        if (maxChipsPerPlayer > 0) {
-          // Distribute the chips
-          const chipsToDistribute = Math.min(
-            maxChipsPerPlayer,
-            Math.floor(remainingValue / chipValue)
-          );
-          distribution[i] = chipsToDistribute;
-
-          remainingValue -= chipsToDistribute * chipValue; // Subtract the value of these chips
-          remainingChips[i] -= chipsToDistribute * playerCount; // Update remaining chips
-
-          console.log(
-            `Distributed ${chipsToDistribute} chips of ${chipValue} value`
-          );
+      // First pass: Distribute at least one chip of each selected denomination per player
+      for (let i = 0; i < selectedChips.length; i++) {
+        const chipValue = selectedChips[i];
+        if (remainingValue >= chipValue && remainingChips[i] >= playerCount) {
+          distribution[i] = 1;
+          remainingValue -= chipValue;
+          remainingChips[i] -= playerCount;
         }
-
-        if (remainingValue <= 0) break; // Stop once the required value is met
       }
 
-      console.log("Remaining value after distribution:", remainingValue);
-      console.log("Remaining chips:", remainingChips);
+      // Second pass: Distribute remaining buy-in amount fairly across chip colors
+      while (remainingValue > 0) {
+        let allocatedInRound = false;
 
-      // Step 2: Handle the remaining value with smaller denominations if necessary
-      if (remainingValue > 0) {
-        for (let i = 0; i < chipValues.length; i++) {
-          const chipValue = chipValues[i];
-          const availableChips = remainingChips[i];
+        for (let i = 0; i < selectedChips.length; i++) {
+          if (remainingValue <= 0) break;
+          const chipValue = selectedChips[i];
 
-          const maxChipsPerPlayer = Math.min(
-            Math.floor(remainingValue / chipValue), // Max chips based on remaining value
-            Math.floor(availableChips / playerCount) // Max chips based on availability
-          );
-
-          console.log(
-            `Attempting to distribute ${chipValue} chips (remaining value: ${remainingValue})`
-          );
-
-          if (maxChipsPerPlayer > 0) {
-            const chipsToDistribute = Math.min(
-              maxChipsPerPlayer,
-              Math.floor(remainingValue / chipValue)
-            );
-            distribution[i] += chipsToDistribute;
-
-            remainingValue -= chipsToDistribute * chipValue; // Subtract the value of these chips
-            remainingChips[i] -= chipsToDistribute * playerCount; // Update remaining chips
-
-            console.log(
-              `Distributed ${chipsToDistribute} chips of ${chipValue} value`
-            );
+          if (remainingChips[i] >= playerCount && remainingValue >= chipValue) {
+            distribution[i] += 1;
+            remainingValue -= chipValue;
+            remainingChips[i] -= playerCount;
+            allocatedInRound = true;
           }
+        }
 
-          if (remainingValue <= 0) break; // Stop if the remaining value is fulfilled
+        if (!allocatedInRound) break; // Prevent infinite loops
+      }
+
+      // Create a mapping from chip color names to chip counts and denominations
+      let chipMap: Record<string, { count: number; value: number }> = {};
+      for (let i = 0; i < selectedChips.length; i++) {
+        if (distribution[i] > 0) {
+          // Map denomination and color to chip count
+          chipMap[colors[i]] = {
+            count: distribution[i],
+            value: selectedChips[i],
+          };
         }
       }
 
-      console.log("Remaining value after distribution:", remainingValue);
-      console.log("Final chip distribution:", distribution);
-
-      // Step 3: Adjust distribution to ensure no player gets more chips than available
-      distribution = distribution.map((chipCount, i) =>
-        Math.min(chipCount, Math.floor(totalChipsCount[i] / playerCount))
-      );
-
-      // Step 4: Check if total value distributed per player matches the buy-in
-      const totalDistributedValue = distribution.reduce(
-        (total, chips, index) => total + chips * chipValues[index],
-        0
-      );
-
-      console.log("Total distributed value:", totalDistributedValue);
-
-      // If total distributed value doesn't match, reset distribution
-      if (totalDistributedValue !== buyInAmount) {
-        console.log("Mismatch in distributed value, resetting distribution.");
-        distribution = [0, 0, 0, 0, 0];
-      }
-
-      setChipDistribution(distribution);
+      setChipCountPerPlayer(chipMap);
     } else {
-      setChipDistribution([]);
+      setChipCountPerPlayer({});
     }
-  }, [buyInAmount, playerCount, totalChipsCount]);
+  }, [buyInAmount, playerCount, totalChipsCount, colors]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Chip Distribution Summary:</Text>
-      {chipDistribution.length > 0 ? (
-        chipDistribution.map((count, index) => (
-          <Text key={index} style={[styles.chipText, { color: colors[index] }]}>
-            {`${colors[index]?.toString().toUpperCase()} Chips: ${count} per player`}
-          </Text>
-        ))
+      {Object.keys(chipCountPerPlayer).length > 0 ? (
+        <View style={styles.chipContainer}>
+          {Object.entries(chipCountPerPlayer).map(
+            ([color, { count, value }]) => (
+              <Text style={styles.chipText} key={color}>
+                {color.charAt(0).toUpperCase() + color.slice(1)} chips: {count}{" "}
+                ( ${value} each)
+              </Text>
+            )
+          )}
+        </View>
       ) : (
         <Text style={styles.noDataText}>
           No valid distribution calculated yet.
@@ -163,6 +131,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
+  },
+  chipContainer: {
+    marginTop: 10,
   },
   chipText: {
     fontSize: 16,
