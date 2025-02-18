@@ -3,7 +3,8 @@ import { ScrollView, Text, Alert, Button } from "react-native";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
-import ChipDistributionSummary from "@/components/ChipDistributionSummary"; 
+import ChipDistributionSummary from "@/components/ChipDistributionSummary";
+import ChipDetection from "@/components/ChipDetection";
 const IndexScreen = () => {
   const [playerCount, setPlayerCount] = useState(2);
   const [buyInAmount, setBuyInAmount] = useState<number | null>(null);
@@ -29,6 +30,10 @@ const IndexScreen = () => {
         setPlayerCount={setPlayerCount}
       />
       <BuyInSelector setBuyInAmount={setBuyInAmount} />
+      <ChipDetection
+        totalChipsCount={totalChipsCount}
+        setTotalChipsCount={setTotalChipsCount}
+      />
       <ChipsSelector
         totalChipsCount={totalChipsCount}
         setTotalChipsCount={setTotalChipsCount}
