@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ColorValue } from "react-native";
 
 interface ChipDistributionSummaryProps {
   playerCount: number;
-  buyInAmount: number | null;
+  buyInAmount: number;
   totalChipsCount: number[];
   colors?: ColorValue[];
 }
@@ -15,92 +15,126 @@ const ChipDistributionSummary = ({
   totalChipsCount,
   colors = ["white", "red", "green", "blue", "black"],
 }: ChipDistributionSummaryProps) => {
-  const [chipCountPerPlayer, setChipCountPerPlayer] = useState<
-    Record<string, { count: number; value: number }>
-  >({});
+  // const [chipCountPerPlayer, setChipCountPerPlayer] = useState<
+  //   Record<string, { count: number; value: number }>
+  // >({});
+  const validDenominations = [
+    0.05, 0.1, 0.25, 0.5, 1, 2, 2.5, 5, 10, 20, 50, 100,
+  ];
+
+  // Re-organize the inputs in a map for convience
+  const chipMap: Map<ColorValue, number> = useMemo(() => {
+    const m: Map<ColorValue, number> = new Map<ColorValue, number>();
+    totalChipsCount.map((v, i) => {
+      m.set(colors[i], v);
+    });
+    return m;
+  }, [playerCount, buyInAmount, totalChipsCount]);
+
+  // Helper function to return the closest (but lower) valid denomination to the target
+  const findFloorDenomination = (target: number) => {
+    let current: number = validDenominations[0];
+    validDenominations.forEach((value, index) => {
+      if (value < target) current = value;
+    });
+    return current;
+  };
+
+  const maxDenomination = useMemo(() => {
+    if (chipMap.size > 3) {
+      return findFloorDenomination(buyInAmount / 2);
+    } else {
+      return findFloorDenomination(buyInAmount / 4);
+    }
+  }, [chipMap]);
 
   useEffect(() => {
-    if (
-      buyInAmount !== null &&
-      playerCount > 0 &&
-      totalChipsCount.every((chips) => chips > 0)
-    ) {
-      const validDenominations = [
-        0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 50, 100,
-      ];
+    const testDistribution: Map<ColorValue, number> = new Map();
+    const numColors = chipMap.size;
+    testDistribution.set(colors[numColors - 1], maxDenomination);
+    const maxDenominationIndex: number =
+      validDenominations.indexOf(maxDenomination);
+    console.log("test distribution", testDistribution);
+  }, [chipMap, maxDenomination]);
 
-      const availableColors = Math.min(colors.length, 5);
-      let selectedChips: number[] = [];
-      let maxDenomination = buyInAmount / 2;
+  // useEffect(() => {
+  //   if (
+  //     buyInAmount !== null &&
+  //     playerCount > 0 &&
+  //     totalChipsCount.every((chips) => chips > 0)
+  //   ) {
+  //     const availableColors = Math.min(colors.length, 5);
+  //     let selectedChips: number[] = [];
+  //     let maxDenomination = buyInAmount / 2;
 
-      // Select the denominations for available colors (up to 5 colors)
-      for (let i = validDenominations.length - 1; i >= 0; i--) {
-        if (
-          validDenominations[i] <= maxDenomination &&
-          selectedChips.length < availableColors
-        ) {
-          selectedChips.unshift(validDenominations[i]);
-        }
-      }
+  //     // Select the denominations for available colors (up to 5 colors)
+  //     for (let i = validDenominations.length - 1; i >= 0; i--) {
+  //       if (
+  //         validDenominations[i] <= maxDenomination &&
+  //         selectedChips.length < availableColors
+  //       ) {
+  //         selectedChips.unshift(validDenominations[i]);
+  //       }
+  //     }
 
-      // Ensure the selected chips are sorted from low to high denomination
-      selectedChips = selectedChips.sort((a, b) => a - b);
+  //     // Ensure the selected chips are sorted from low to high denomination
+  //     selectedChips = selectedChips.sort((a, b) => a - b);
 
-      let distribution = new Array(selectedChips.length).fill(0);
-      let remainingValue = buyInAmount;
-      let remainingChips = [...totalChipsCount.slice(0, selectedChips.length)];
+  //     let distribution = new Array(selectedChips.length).fill(0);
+  //     let remainingValue = buyInAmount;
+  //     let remainingChips = [...totalChipsCount.slice(0, selectedChips.length)];
 
-      // First pass: Distribute at least one chip of each selected denomination per player
-      for (let i = 0; i < selectedChips.length; i++) {
-        const chipValue = selectedChips[i];
-        if (remainingValue >= chipValue && remainingChips[i] >= playerCount) {
-          distribution[i] = 1;
-          remainingValue -= chipValue;
-          remainingChips[i] -= playerCount;
-        }
-      }
+  //     // First pass: Distribute at least one chip of each selected denomination per player
+  //     for (let i = 0; i < selectedChips.length; i++) {
+  //       const chipValue = selectedChips[i];
+  //       if (remainingValue >= chipValue && remainingChips[i] >= playerCount) {
+  //         distribution[i] = 1;
+  //         remainingValue -= chipValue;
+  //         remainingChips[i] -= playerCount;
+  //       }
+  //     }
 
-      // Second pass: Distribute remaining buy-in amount fairly across chip colors
-      while (remainingValue > 0) {
-        let allocatedInRound = false;
+  //     // Second pass: Distribute remaining buy-in amount fairly across chip colors
+  //     while (remainingValue > 0) {
+  //       let allocatedInRound = false;
 
-        for (let i = 0; i < selectedChips.length; i++) {
-          if (remainingValue <= 0) break;
-          const chipValue = selectedChips[i];
+  //       for (let i = 0; i < selectedChips.length; i++) {
+  //         if (remainingValue <= 0) break;
+  //         const chipValue = selectedChips[i];
 
-          if (remainingChips[i] >= playerCount && remainingValue >= chipValue) {
-            distribution[i] += 1;
-            remainingValue -= chipValue;
-            remainingChips[i] -= playerCount;
-            allocatedInRound = true;
-          }
-        }
+  //         if (remainingChips[i] >= playerCount && remainingValue >= chipValue) {
+  //           distribution[i] += 1;
+  //           remainingValue -= chipValue;
+  //           remainingChips[i] -= playerCount;
+  //           allocatedInRound = true;
+  //         }
+  //       }
 
-        if (!allocatedInRound) break; // Prevent infinite loops
-      }
+  //       if (!allocatedInRound) break; // Prevent infinite loops
+  //     }
 
-      // Create a mapping from chip color names to chip counts and denominations
-      let chipMap: Record<string, { count: number; value: number }> = {};
-      for (let i = 0; i < selectedChips.length; i++) {
-        if (distribution[i] > 0) {
-          // Map denomination and color to chip count
-          chipMap[colors[i]] = {
-            count: distribution[i],
-            value: selectedChips[i],
-          };
-        }
-      }
+  //     // Create a mapping from chip color names to chip counts and denominations
+  //     let chipMap: Record<string, { count: number; value: number }> = {};
+  //     for (let i = 0; i < selectedChips.length; i++) {
+  //       if (distribution[i] > 0) {
+  //         // Map denomination and color to chip count
+  //         chipMap[colors[i]] = {
+  //           count: distribution[i],
+  //           value: selectedChips[i],
+  //         };
+  //       }
+  //     }
 
-      setChipCountPerPlayer(chipMap);
-    } else {
-      setChipCountPerPlayer({});
-    }
-  }, [buyInAmount, playerCount, totalChipsCount, colors]);
+  //     setChipCountPerPlayer(chipMap);
+  //   } else {
+  //     setChipCountPerPlayer({});
+  //   }
+  // }, [buyInAmount, playerCount, totalChipsCount, colors]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Chip Distribution Summary:</Text>
-      {Object.keys(chipCountPerPlayer).length > 0 ? (
+      {/**Object.keys(chipCountPerPlayer).length > 0 ? (
         <View style={styles.chipContainer}>
           {Object.entries(chipCountPerPlayer).map(
             ([color, { count, value }]) => (
@@ -115,7 +149,7 @@ const ChipDistributionSummary = ({
         <Text style={styles.noDataText}>
           No valid distribution calculated yet.
         </Text>
-      )}
+      )**/}
     </View>
   );
 };
