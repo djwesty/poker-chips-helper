@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { API_KEY } from "@env";
+import { API_KEY, MODEL_NAME } from "@env";
 
 const ChipDetection = ({ updateChipCount }) => {
   const [imageUri, setImageUri] = useState(null);
@@ -16,7 +16,6 @@ const ChipDetection = ({ updateChipCount }) => {
   const [error, setError] = useState(null);
   const [lastDetectedChips, setLastDetectedChips] = useState({});
 
-  // Ensure early return does not break hooks
   const requestCameraPermissions = async () => {
     const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
     return cameraPermission.granted;
@@ -67,7 +66,7 @@ const ChipDetection = ({ updateChipCount }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "gpt-4o-mini",
+            model: MODEL_NAME,
             messages: [
               {
                 role: "system",
@@ -112,11 +111,10 @@ const ChipDetection = ({ updateChipCount }) => {
       setLastDetectedChips(filteredData); // Store detected chip counts
       updateChipCount(filteredData);
     } catch (error) {
-      console.error("Error processing image:", error);
       setError("Failed to analyze the image.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
