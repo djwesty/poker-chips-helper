@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ColorValue } from "react-native";
+// import { COLORS } from "@/app";
 
 interface ChipDistributionSummaryProps {
   playerCount: number;
@@ -15,12 +16,25 @@ const ChipDistributionSummary = ({
   totalChipsCount,
   colors = ["white", "red", "green", "blue", "black"],
 }: ChipDistributionSummaryProps) => {
-  // const [chipCountPerPlayer, setChipCountPerPlayer] = useState<
-  //   Record<string, { count: number; value: number }>
-  // >({});
-  const validDenominations = [
+  const validDenominations: validDenomination[] = [
     0.05, 0.1, 0.25, 0.5, 1, 2, 2.5, 5, 10, 20, 50, 100,
   ];
+  const [denominations, setDenominations] = useState<validDenomination[]>([]);
+  const [distributions, setDistributions] = useState<number[]>([]);
+
+  type validDenomination =
+    | 0.05
+    | 0.1
+    | 0.25
+    | 0.5
+    | 1
+    | 2
+    | 2.5
+    | 5
+    | 10
+    | 20
+    | 50
+    | 100;
 
   // Re-organize the inputs in a map for convience
   const chipMap: Map<ColorValue, number> = useMemo(() => {
@@ -32,124 +46,131 @@ const ChipDistributionSummary = ({
   }, [playerCount, buyInAmount, totalChipsCount]);
 
   // Helper function to return the closest (but lower) valid denomination to the target
-  const findFloorDenomination = (target: number) => {
-    let current: number = validDenominations[0];
+  const findFloorDenomination = (target: number): validDenomination => {
+    let current: validDenomination = validDenominations[0];
     validDenominations.forEach((value, index) => {
       if (value < target) current = value;
     });
     return current;
   };
 
+  // Bound for the value of the highest chip
   const maxDenomination = useMemo(() => {
     if (chipMap.size > 3) {
-      return findFloorDenomination(buyInAmount / 2);
+      return findFloorDenomination(buyInAmount / 3);
     } else {
       return findFloorDenomination(buyInAmount / 4);
     }
   }, [chipMap]);
 
+  // Total value of the pot
+  const totalValue = useMemo(
+    () => buyInAmount * playerCount,
+    [buyInAmount, playerCount]
+  );
+
+  // Maximum quantity of each chip which may be distributed to a single player before running out
+  const maxPossibleDistribution = useMemo(
+    () => totalChipsCount.map((v) => Math.floor(v / playerCount)),
+    [totalChipsCount, playerCount]
+  );
+
+  function denominate(min: number, max: number, count: number = 4): number[] {
+    if (max - min + 1 < count) {
+      throw new Error(
+        "Range is too small to generate the required number of unique values."
+      );
+    }
+
+    const numbers = new Set<number>();
+
+    while (numbers.size < count) {
+      const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+      numbers.add(randomNum);
+    }
+
+    // const denominations
+
+    return Array.from(numbers);
+  }
+
   useEffect(() => {
-    const testDistribution: Map<ColorValue, number> = new Map();
+    // const testDistribution: Map<ColorValue, number> = new Map();
+    const testDenomination: validDenomination[] = [];
+
     const numColors = chipMap.size;
-    testDistribution.set(colors[numColors - 1], maxDenomination);
-    const maxDenominationIndex: number =
+    const testDistribution: number[] = [];
+    for (let i = 0; i < numColors; ++i) {
+      testDistribution.push(0);
+    }
+
+    let numColorsRemaining = numColors;
+    // testDistribution.set(colors[numColors - 1], maxDenomination);
+    testDenomination.push(maxDenomination);
+    numColorsRemaining -= 1;
+    let currentDenominationIndex: number =
       validDenominations.indexOf(maxDenomination);
-    console.log("test distribution", testDistribution);
-  }, [chipMap, maxDenomination]);
+    while (numColorsRemaining > 0) {
+      numColorsRemaining -= 1;
+      currentDenominationIndex -= 1;
+      const currentDemoniation = validDenominations[currentDenominationIndex];
+      testDenomination.push(currentDemoniation);
+    }
+    testDenomination.reverse();
 
-  // useEffect(() => {
-  //   if (
-  //     buyInAmount !== null &&
-  //     playerCount > 0 &&
-  //     totalChipsCount.every((chips) => chips > 0)
-  //   ) {
-  //     const availableColors = Math.min(colors.length, 5);
-  //     let selectedChips: number[] = [];
-  //     let maxDenomination = buyInAmount / 2;
+    console.log("BUY IN: ", buyInAmount);
+    console.log("PLAYER COUNT ", playerCount);
 
-  //     // Select the denominations for available colors (up to 5 colors)
-  //     for (let i = validDenominations.length - 1; i >= 0; i--) {
-  //       if (
-  //         validDenominations[i] <= maxDenomination &&
-  //         selectedChips.length < availableColors
-  //       ) {
-  //         selectedChips.unshift(validDenominations[i]);
-  //       }
-  //     }
+    // DISTRIBUTE
+    let remainingValue = buyInAmount;
+    const remainingChips = [...maxPossibleDistribution];
+    console.log("\ntest Denomination", testDenomination);
+    console.log("test distribution ", testDistribution);
+    console.log("remainingChips", remainingChips);
+    console.log("remaining value ", remainingValue);
 
-  //     // Ensure the selected chips are sorted from low to high denomination
-  //     selectedChips = selectedChips.sort((a, b) => a - b);
+    //First distribute one of each chip to each player
+    for (let i = numColors - 1; i >= 0; i--) {
+      testDistribution[i] = testDistribution[i] + 1;
+      remainingChips[i] = remainingChips[i] - 1;
+      remainingValue = remainingValue - testDenomination[i];
+    }
+    console.log("\ntest Denomination", testDenomination);
+    console.log("test distribution ", testDistribution);
+    console.log("remainingChips", remainingChips);
+    console.log("remaining value ", remainingValue);
 
-  //     let distribution = new Array(selectedChips.length).fill(0);
-  //     let remainingValue = buyInAmount;
-  //     let remainingChips = [...totalChipsCount.slice(0, selectedChips.length)];
+    //Then, greedy approach to distribute remaining chips
 
-  //     // First pass: Distribute at least one chip of each selected denomination per player
-  //     for (let i = 0; i < selectedChips.length; i++) {
-  //       const chipValue = selectedChips[i];
-  //       if (remainingValue >= chipValue && remainingChips[i] >= playerCount) {
-  //         distribution[i] = 1;
-  //         remainingValue -= chipValue;
-  //         remainingChips[i] -= playerCount;
-  //       }
-  //     }
-
-  //     // Second pass: Distribute remaining buy-in amount fairly across chip colors
-  //     while (remainingValue > 0) {
-  //       let allocatedInRound = false;
-
-  //       for (let i = 0; i < selectedChips.length; i++) {
-  //         if (remainingValue <= 0) break;
-  //         const chipValue = selectedChips[i];
-
-  //         if (remainingChips[i] >= playerCount && remainingValue >= chipValue) {
-  //           distribution[i] += 1;
-  //           remainingValue -= chipValue;
-  //           remainingChips[i] -= playerCount;
-  //           allocatedInRound = true;
-  //         }
-  //       }
-
-  //       if (!allocatedInRound) break; // Prevent infinite loops
-  //     }
-
-  //     // Create a mapping from chip color names to chip counts and denominations
-  //     let chipMap: Record<string, { count: number; value: number }> = {};
-  //     for (let i = 0; i < selectedChips.length; i++) {
-  //       if (distribution[i] > 0) {
-  //         // Map denomination and color to chip count
-  //         chipMap[colors[i]] = {
-  //           count: distribution[i],
-  //           value: selectedChips[i],
-  //         };
-  //       }
-  //     }
-
-  //     setChipCountPerPlayer(chipMap);
-  //   } else {
-  //     setChipCountPerPlayer({});
-  //   }
-  // }, [buyInAmount, playerCount, totalChipsCount, colors]);
+    // while (remainingValue > 0) {
+    //   for (let i = numColors - 1; i >= 0; i--) {
+    //     if (remainingChips[i] > 0 && remainingValue > testDenomination[i]) {
+    //       testDistribution[i] = testDistribution[i] + 1;
+    //       remainingChips[i] = remainingChips[i] - 1;
+    //       remainingValue = remainingValue - testDenomination[i];
+    //     }
+    //     remainingValue = 0;
+    //   }
+    // }
+    console.log("\ntest Denomination", testDenomination);
+    console.log("test distribution ", testDistribution);
+    console.log("remainingChips", remainingChips);
+    console.log("remaining value ", remainingValue);
+    setDenominations(testDenomination);
+    setDistributions(testDistribution);
+  }, [chipMap, maxDenomination, buyInAmount, playerCount]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Chip Distribution Summary:</Text>
-      {/**Object.keys(chipCountPerPlayer).length > 0 ? (
-        <View style={styles.chipContainer}>
-          {Object.entries(chipCountPerPlayer).map(
-            ([color, { count, value }]) => (
-              <Text style={styles.chipText} key={color}>
-                {color.charAt(0).toUpperCase() + color.slice(1)} chips: {count}{" "}
-                ( ${value} each)
-              </Text>
-            )
-          )}
+      {colors.map((color, index) => (
+        <View style={styles.chipContainer} key={index}>
+          <Text style={styles.chipText}>
+            {String(color).charAt(0).toUpperCase() + String(color).slice(1)}{" "}
+            chips: {distributions[index]} ( ${denominations[index]} each)
+          </Text>
         </View>
-      ) : (
-        <Text style={styles.noDataText}>
-          No valid distribution calculated yet.
-        </Text>
-      )**/}
+      ))}
     </View>
   );
 };

@@ -4,6 +4,15 @@ import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
 import ChipDistributionSummary from "@/components/ChipDistributionSummary";
+
+export enum COLORS {
+  "white",
+  "red",
+  "green",
+  "blue",
+  "black",
+}
+
 const IndexScreen = () => {
   const [playerCount, setPlayerCount] = useState(2);
   const [buyInAmount, setBuyInAmount] = useState<number>(20);
