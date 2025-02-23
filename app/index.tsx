@@ -5,6 +5,7 @@ import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
 import ChipDistributionSummary from "@/components/ChipDistributionSummary";
 import DarkModeToggle from "@/components/DarkModeToggle";
+import { saveState, loadState } from "../components/CalculatorState";
 
 const IndexScreen = () => {
   const [playerCount, setPlayerCount] = useState(2);
@@ -13,14 +14,26 @@ const IndexScreen = () => {
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
   const [darkMode, setDarkMode] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async (slot: "SLOT1" | "SLOT2") => {
     if (buyInAmount === null) {
       Alert.alert("Error", "Please select a valid buy-in amount");
+      return;
+    }
+    const state = { playerCount, buyInAmount, numberOfChips, totalChipsCount };
+    const result = await saveState(slot, state);
+    Alert.alert(result.success ? "Success" : "Error", result.message);
+  };
+
+  const handleLoad = async (slot: "SLOT1" | "SLOT2") => {
+    const loadedState = await loadState(slot);
+    if (loadedState) {
+      setPlayerCount(loadedState.playerCount);
+      setBuyInAmount(loadedState.buyInAmount);
+      setNumberOfChips(loadedState.numberOfChips);
+      setTotalChipsCount(loadedState.totalChipsCount);
+      Alert.alert("Success", `State loaded from ${slot}`);
     } else {
-      Alert.alert(
-        "Success",
-        `Buy-in amount set to ${buyInAmount} for ${playerCount} players`
-      );
+      Alert.alert("Info", "No saved state found");
     }
   };
 
@@ -44,7 +57,10 @@ const IndexScreen = () => {
           buyInAmount={buyInAmount}
           totalChipsCount={totalChipsCount}
         />
-        <Button title="Save" onPress={handleSave} disabled={buyInAmount === null} />
+        <Button title="Save to Slot 1" onPress={() => handleSave("SLOT1")} disabled={buyInAmount === null} />
+        <Button title="Save to Slot 2" onPress={() => handleSave("SLOT2")} disabled={buyInAmount === null} />
+        <Button title="Load from Slot 1" onPress={() => handleLoad("SLOT1")} />
+        <Button title="Load from Slot 2" onPress={() => handleLoad("SLOT2")} />
       </ScrollView>
     </View>
   );
@@ -75,3 +91,4 @@ const styles = StyleSheet.create({
 });
 
 export default IndexScreen;
+
