@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollView, Text, Alert, Button, View, StyleSheet } from "react-native";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
@@ -6,6 +6,7 @@ import ChipsSelector from "@/components/ChipsSelector";
 import ChipDistributionSummary from "@/components/ChipDistributionSummary";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import { saveState, loadState } from "../components/CalculatorState";
+import { savePersistentState, loadPersistentState } from "../components/PersistentState";
 
 const IndexScreen = () => {
   const [playerCount, setPlayerCount] = useState(2);
@@ -13,6 +14,24 @@ const IndexScreen = () => {
   const [numberOfChips, setNumberOfChips] = useState<number>(5);
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
   const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const loadPersistentData = async () => {
+      const savedState = await loadPersistentState();
+      if (savedState) {
+        setPlayerCount(savedState.playerCount);
+        setBuyInAmount(savedState.buyInAmount);
+        setNumberOfChips(savedState.numberOfChips);
+        setTotalChipsCount(savedState.totalChipsCount);
+      }
+    };
+    loadPersistentData();
+  }, []);
+
+  useEffect(() => {
+    const state = { playerCount, buyInAmount, numberOfChips, totalChipsCount };
+    savePersistentState(state);
+  }, [playerCount, buyInAmount, numberOfChips, totalChipsCount]);
 
   const handleSave = async (slot: "SLOT1" | "SLOT2") => {
     if (buyInAmount === null) {
