@@ -18,14 +18,15 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 To set up your environment variables:
 
-1. Copy the example environment variable file to create your own .env file:
+1. Copy the example environment variable file to create your own `.env` file:
 
+```bash
 cp .env.example .env
+```
 
-2. Open the .env file and add your OpenAI API key:
+2. Open the `.env` file and add your OpenAI API key:
 
-API_KEY=your_openai_api_key_here
-MODEL_NAME=your_model_name
+`EXPO_PUBLIC_API_KEY=put-open-ai-key-here`
 
 3. Save the .env file.
 
