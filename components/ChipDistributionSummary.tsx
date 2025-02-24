@@ -75,28 +75,33 @@ const ChipDistributionSummary = ({
     [totalChipsCount, playerCount]
   );
 
-  function denominate(min: number, max: number, count: number = 4): number[] {
-    if (max - min + 1 < count) {
-      throw new Error(
-        "Range is too small to generate the required number of unique values."
-      );
+  const redenominate = (
+    invalidDenomination: validDenomination[],
+    shuffleIndex: number
+  ): validDenomination[] => {
+    console.log("Old Denominations ", invalidDenomination);
+    const newDenomination: validDenomination[] = [];
+    for (let i = invalidDenomination.length - 1; i >= 0; i--) {
+      if (i > shuffleIndex) {
+        newDenomination.push(invalidDenomination[i]);
+      } else if (i == shuffleIndex) {
+        newDenomination.push(invalidDenomination[i]);
+      } else {
+        const nextLowestDenominationIndex = Math.max(
+          validDenominations.indexOf(invalidDenomination[i]) - 1,
+          0
+        );
+        newDenomination.push(validDenominations[nextLowestDenominationIndex]);
+      }
     }
-
-    const numbers = new Set<number>();
-
-    while (numbers.size < count) {
-      const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-      numbers.add(randomNum);
-    }
-
-    // const denominations
-
-    return Array.from(numbers);
-  }
+    newDenomination.reverse();
+    console.log("New Denominations ", newDenomination);
+    return newDenomination;
+  };
 
   useEffect(() => {
     // const testDistribution: Map<ColorValue, number> = new Map();
-    const testDenomination: validDenomination[] = [];
+    let testDenomination: validDenomination[] = [];
 
     const numColors = chipMap.size;
     const testDistribution: number[] = [];
@@ -118,44 +123,66 @@ const ChipDistributionSummary = ({
     }
     testDenomination.reverse();
 
-    console.log("BUY IN: ", buyInAmount);
-    console.log("PLAYER COUNT ", playerCount);
+    // console.log("BUY IN: ", buyInAmount);
+    // console.log("PLAYER COUNT ", playerCount);
 
     // DISTRIBUTE
     let remainingValue = buyInAmount;
     const remainingChips = [...maxPossibleDistribution];
-    console.log("\ntest Denomination", testDenomination);
-    console.log("test distribution ", testDistribution);
-    console.log("remainingChips", remainingChips);
-    console.log("remaining value ", remainingValue);
+    // console.log("\ntest Denomination", testDenomination);
+    // console.log("test distribution ", testDistribution);
+    // console.log("remainingChips", remainingChips);
+    // console.log("remaining value ", remainingValue);
 
     //First distribute one of each chip to each player
-    for (let i = numColors - 1; i >= 0; i--) {
-      testDistribution[i] = testDistribution[i] + 1;
-      remainingChips[i] = remainingChips[i] - 1;
-      remainingValue = remainingValue - testDenomination[i];
-    }
-    console.log("\ntest Denomination", testDenomination);
-    console.log("test distribution ", testDistribution);
-    console.log("remainingChips", remainingChips);
-    console.log("remaining value ", remainingValue);
+    // for (let i = numColors - 1; i >= 0; i--) {
+    //   testDistribution[i] = testDistribution[i] + 1;
+    //   remainingChips[i] = remainingChips[i] - 1;
+    //   remainingValue = remainingValue - testDenomination[i];
+    // }
+    // console.log("\ntest Denomination", testDenomination);
+    // console.log("test distribution ", testDistribution);
+    // console.log("remainingChips", remainingChips);
+    // console.log("remaining value ", remainingValue);
 
     //Then, greedy approach to distribute remaining chips
 
-    // while (remainingValue > 0) {
-    //   for (let i = numColors - 1; i >= 0; i--) {
-    //     if (remainingChips[i] > 0 && remainingValue > testDenomination[i]) {
-    //       testDistribution[i] = testDistribution[i] + 1;
-    //       remainingChips[i] = remainingChips[i] - 1;
-    //       remainingValue = remainingValue - testDenomination[i];
-    //     }
-    //     remainingValue = 0;
-    //   }
-    // }
-    console.log("\ntest Denomination", testDenomination);
-    console.log("test distribution ", testDistribution);
-    console.log("remainingChips", remainingChips);
-    console.log("remaining value ", remainingValue);
+    let fail = true;
+    let failCount = 0;
+    while (fail && failCount < 10) {
+      let stop = false;
+      while (remainingValue > 0 && !stop) {
+        let distributed = false;
+        for (let i = numColors - 1; i >= 0; i--) {
+          if (remainingChips[i] > 0 && remainingValue > testDenomination[i]) {
+            // console.log("distributing ", testDenomination[i]);
+            testDistribution[i] = testDistribution[i] + 1;
+            remainingChips[i] = remainingChips[i] - 1;
+            remainingValue = remainingValue - testDenomination[i];
+            distributed = true;
+          }
+        }
+        if (distributed == false) {
+          stop = true;
+        }
+      }
+      if (remainingValue !== 0) {
+        console.log(`\n Failed: ${remainingValue} !== 0 Redenominating  `);
+        const redenominateIndex = numColors - (failCount % numColors);
+        console.log("Redenominating index  ", redenominateIndex);
+        testDenomination = redenominate(testDenomination, redenominateIndex);
+        failCount += 1;
+        fail = true;
+      } else {
+        fail = false;
+      }
+    }
+
+    // console.log("\ntest Denomination", testDenomination);
+    // console.log("test distribution ", testDistribution);
+    // console.log("remainingChips", remainingChips);
+    // console.log("remaining value ", remainingValue);
+
     setDenominations(testDenomination);
     setDistributions(testDistribution);
   }, [chipMap, maxDenomination, buyInAmount, playerCount]);
@@ -165,12 +192,17 @@ const ChipDistributionSummary = ({
       <Text style={styles.title}>Chip Distribution Summary:</Text>
       {colors.map((color, index) => (
         <View style={styles.chipContainer} key={index}>
-          <Text style={styles.chipText}>
+          <Text style={{ ...styles.chipText, color: color }}>
             {String(color).charAt(0).toUpperCase() + String(color).slice(1)}{" "}
             chips: {distributions[index]} ( ${denominations[index]} each)
           </Text>
         </View>
       ))}
+      <Text style={styles.chipText}>
+        Total Value:{" "}
+        {distributions?.length > 0 &&
+          distributions.reduce((p, c, i) => p + c * denominations[i])}
+      </Text>
     </View>
   );
 };
@@ -189,10 +221,12 @@ const styles = StyleSheet.create({
   },
   chipContainer: {
     marginTop: 10,
+    backgroundColor: "#888",
   },
   chipText: {
-    fontSize: 16,
+    fontSize: 20,
     marginVertical: 2,
+    fontWeight: "bold",
   },
   noDataText: {
     fontSize: 16,
