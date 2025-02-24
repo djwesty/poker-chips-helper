@@ -8,7 +8,6 @@ import {
   ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { API_KEY, MODEL_NAME } from "@env";
 
 const ChipDetection = ({ updateChipCount }) => {
   const [imageUri, setImageUri] = useState(null);
@@ -62,11 +61,11 @@ const ChipDetection = ({ updateChipCount }) => {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${API_KEY}`,
+            Authorization: `Bearer ${process.env.EXPO_PUBLIC_API_KEY}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: MODEL_NAME,
+            model: process.env.EXPO_PUBLIC_MODEL_NAME,
             messages: [
               {
                 role: "system",
@@ -103,12 +102,11 @@ const ChipDetection = ({ updateChipCount }) => {
 
       const parsedData = JSON.parse(cleanJSON);
 
-      // Filter out colors with a count of 0
       const filteredData = Object.fromEntries(
         Object.entries(parsedData).filter(([_, count]) => count > 0)
       );
 
-      setLastDetectedChips(filteredData); // Store detected chip counts
+      setLastDetectedChips(filteredData);
       updateChipCount(filteredData);
     } catch (error) {
       setError("Failed to analyze the image.");
