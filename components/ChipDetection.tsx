@@ -8,7 +8,6 @@ import {
   ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { API_KEY, MODEL_NAME } from "@env";
 
 const ChipDetection = ({ updateChipCount }) => {
   const [imageUri, setImageUri] = useState(null);
@@ -57,40 +56,37 @@ const ChipDetection = ({ updateChipCount }) => {
     setError(null);
 
     try {
-      const response = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: MODEL_NAME,
-            messages: [
-              {
-                role: "system",
-                content:
-                  "Identify and count poker chips by color. Return only the count for each color in JSON format.",
-              },
-              {
-                role: "user",
-                content: [
-                  {
-                    type: "text",
-                    text: "How many poker chips are there for each color? Return structured JSON.",
-                  },
-                  {
-                    type: "image_url",
-                    image_url: { url: `data:image/png;base64,${base64Image}` },
-                  },
-                ],
-              },
-            ],
-            max_tokens: 1000,
-          }),
-        }
-      );
+      const response = await fetch(process.env.EXPO_PUBLIC_API_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.EXPO_PUBLIC_API_KEY}`, // Use environment variable for API key
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: process.env.EXPO_PUBLIC_MODEL_NAME, // Use environment variable for model name
+          messages: [
+            {
+              role: "system",
+              content:
+                "Identify and count poker chips by color. Return only the count for each color in JSON format.",
+            },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "How many poker chips are there for each color? Return structured JSON.",
+                },
+                {
+                  type: "image_url",
+                  image_url: { url: `data:image/png;base64,${base64Image}` },
+                },
+              ],
+            },
+          ],
+          max_tokens: 1000,
+        }),
+      });
 
       const result = await response.json();
 
@@ -103,12 +99,11 @@ const ChipDetection = ({ updateChipCount }) => {
 
       const parsedData = JSON.parse(cleanJSON);
 
-      // Filter out colors with a count of 0
       const filteredData = Object.fromEntries(
         Object.entries(parsedData).filter(([_, count]) => count > 0)
       );
 
-      setLastDetectedChips(filteredData); // Store detected chip counts
+      setLastDetectedChips(filteredData);
       updateChipCount(filteredData);
     } catch (error) {
       setError("Failed to analyze the image.");
