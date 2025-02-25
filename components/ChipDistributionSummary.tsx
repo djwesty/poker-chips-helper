@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ColorValue } from "react-native";
 
@@ -35,15 +35,6 @@ const ChipDistributionSummary = ({
     | 50
     | 100;
 
-  // Re-organize the inputs in a map for convience
-  const chipMap: Map<ColorValue, number> = useMemo(() => {
-    const m: Map<ColorValue, number> = new Map<ColorValue, number>();
-    totalChipsCount.map((v, i) => {
-      m.set(colors[i], v);
-    });
-    return m;
-  }, [playerCount, buyInAmount, totalChipsCount]);
-
   // Return the closest (but lower) valid denomination to the target
   const findFloorDenomination = (target: number): validDenomination => {
     let current: validDenomination = validDenominations[0];
@@ -56,12 +47,12 @@ const ChipDistributionSummary = ({
   // Bound for the value of the highest chip
   // This is somewhat arbitray, but 1/3 to 1/4 is reasonable depending on the number of colors.
   const maxDenomination = useMemo(() => {
-    if (chipMap.size > 3) {
+    if (totalChipsCount.length > 3) {
       return findFloorDenomination(buyInAmount / 3);
     } else {
       return findFloorDenomination(buyInAmount / 4);
     }
-  }, [chipMap]);
+  }, [totalChipsCount]);
 
   // Total value of the pot
   const potValue = useMemo(
@@ -86,56 +77,60 @@ const ChipDistributionSummary = ({
 
   // Redenominate the chips in case of failure to properly distribute.
   // Move the shuffle index to the next lowest denomination, and keep all else same
-  const redenominate = (
-    invalidDenomination: validDenomination[],
-    shuffleIndex: number
-  ): validDenomination[] => {
-    let moved = false;
-    const newDenomination: validDenomination[] = [];
-    for (let i = invalidDenomination.length - 1; i >= 0; i--) {
-      if (i > shuffleIndex) {
-        newDenomination.push(invalidDenomination[i]);
-      } else if (i == shuffleIndex) {
-        newDenomination.push(invalidDenomination[i]);
-      } else if (i < shuffleIndex && !moved) {
-        const nextLowestDenominationIndex = Math.max(
-          validDenominations.indexOf(invalidDenomination[i]) - 1,
-          0
-        );
-        newDenomination.push(validDenominations[nextLowestDenominationIndex]);
-        moved = true;
-      } else {
-        newDenomination.push(invalidDenomination[i]);
+  const redenominate = useCallback(
+    (
+      invalidDenomination: validDenomination[],
+      shuffleIndex: number
+    ): validDenomination[] => {
+      let moved = false;
+      const newDenomination: validDenomination[] = [];
+      for (let i = invalidDenomination.length - 1; i >= 0; i--) {
+        if (i > shuffleIndex) {
+          newDenomination.push(invalidDenomination[i]);
+        } else if (i == shuffleIndex) {
+          newDenomination.push(invalidDenomination[i]);
+        } else if (i < shuffleIndex && !moved) {
+          const nextLowestDenominationIndex = Math.max(
+            validDenominations.indexOf(invalidDenomination[i]) - 1,
+            0
+          );
+          newDenomination.push(validDenominations[nextLowestDenominationIndex]);
+          moved = true;
+        } else {
+          newDenomination.push(invalidDenomination[i]);
+        }
       }
-    }
-    newDenomination.reverse();
-    return newDenomination;
-  };
+      newDenomination.reverse();
+      return newDenomination;
+    },
+    []
+  );
 
+  // Dynamically set denominations and distributions from changing inputs
   useEffect(() => {
     let testDenomination: validDenomination[] = [];
 
-    const numColors = chipMap.size;
+    const numColors = totalChipsCount.length;
     const testDistribution: number[] = [];
     for (let i = 0; i < numColors; ++i) {
       testDistribution.push(0);
     }
 
-    let numColorsRemaining = numColors;
+    // Start with max denominations, then push on the next adjacent lower denomination
     testDenomination.push(maxDenomination);
-    numColorsRemaining -= 1;
     let currentDenominationIndex: number =
       validDenominations.indexOf(maxDenomination);
-    while (numColorsRemaining > 0) {
-      numColorsRemaining -= 1;
+    for (let i = numColors - 2; i >= 0; i = i - 1) {
       currentDenominationIndex -= 1;
       const currentDemoniation = validDenominations[currentDenominationIndex];
       testDenomination.push(currentDemoniation);
     }
     testDenomination.reverse();
 
+    // Distribute the chips using the test denomination
+    // If distribution fails to equal the buy-in, redenominate and re-try
+    // Algorithm could be improved with more complexity and optimization
     let remainingValue = buyInAmount;
-
     let fail = true;
     let failCount = 0;
     while (fail && failCount < 1) {
@@ -167,7 +162,7 @@ const ChipDistributionSummary = ({
 
     setDenominations(testDenomination);
     setDistributions(testDistribution);
-  }, [chipMap, maxDenomination, buyInAmount, playerCount]);
+  }, [totalChipsCount, maxDenomination, buyInAmount, playerCount]);
 
   return (
     <View style={styles.container}>
