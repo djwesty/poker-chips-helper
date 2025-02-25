@@ -64,10 +64,18 @@ const ChipDistributionSummary = ({
   }, [chipMap]);
 
   // Total value of the pot
-  const totalValue = useMemo(
+  const potValue = useMemo(
     () => buyInAmount * playerCount,
     [buyInAmount, playerCount]
   );
+
+  const totalValue = useMemo(() => {
+    let value = 0;
+    for (let i = 0; i < totalChipsCount.length; i++) {
+      value += distributions[i] * denominations[i];
+    }
+    return value;
+  }, [distributions, denominations]);
 
   // Maximum quantity of each chip which may be distributed to a single player before running out
   const maxPossibleDistribution = useMemo(
@@ -92,6 +100,34 @@ const ChipDistributionSummary = ({
           0
         );
         newDenomination.push(validDenominations[nextLowestDenominationIndex]);
+      }
+    }
+    newDenomination.reverse();
+    console.log("New Denominations ", newDenomination);
+    return newDenomination;
+  };
+
+  const redenominate2 = (
+    invalidDenomination: validDenomination[],
+    shuffleIndex: number
+  ): validDenomination[] => {
+    console.log("Old Denominations ", invalidDenomination);
+    let moved = false;
+    const newDenomination: validDenomination[] = [];
+    for (let i = invalidDenomination.length - 1; i >= 0; i--) {
+      if (i > shuffleIndex) {
+        newDenomination.push(invalidDenomination[i]);
+      } else if (i == shuffleIndex) {
+        newDenomination.push(invalidDenomination[i]);
+      } else if (i < shuffleIndex && !moved) {
+        const nextLowestDenominationIndex = Math.max(
+          validDenominations.indexOf(invalidDenomination[i]) - 1,
+          0
+        );
+        newDenomination.push(validDenominations[nextLowestDenominationIndex]);
+        moved = true;
+      } else {
+        newDenomination.push(invalidDenomination[i]);
       }
     }
     newDenomination.reverse();
@@ -128,7 +164,6 @@ const ChipDistributionSummary = ({
 
     // DISTRIBUTE
     let remainingValue = buyInAmount;
-    const remainingChips = [...maxPossibleDistribution];
     // console.log("\ntest Denomination", testDenomination);
     // console.log("test distribution ", testDistribution);
     // console.log("remainingChips", remainingChips);
@@ -153,13 +188,24 @@ const ChipDistributionSummary = ({
       let stop = false;
       while (remainingValue > 0 && !stop) {
         let distributed = false;
-        for (let i = numColors - 1; i >= 0; i--) {
-          if (remainingChips[i] > 0 && remainingValue > testDenomination[i]) {
-            // console.log("distributing ", testDenomination[i]);
-            testDistribution[i] = testDistribution[i] + 1;
-            remainingChips[i] = remainingChips[i] - 1;
-            remainingValue = remainingValue - testDenomination[i];
-            distributed = true;
+        for (let i = numColors - 1; i >= 0; i = i - 1) {
+          console.log("i: ", i);
+          if (testDistribution[i] < maxPossibleDistribution[i]) {
+            if (remainingValue >= testDenomination[i]) {
+              // console.log("distributing ", testDenomination[i]);
+              testDistribution[i] = testDistribution[i] + 1;
+              remainingValue = remainingValue - testDenomination[i];
+              distributed = true;
+            } else {
+              // console.log(
+              //   "Max distribution reached for value",
+              //   testDenomination[i],
+              //   "remaining value is ",
+              //   remainingValue
+              // );
+            }
+          } else {
+            // console.log("no more chips left for ", colors[i]);
           }
         }
         if (distributed == false) {
@@ -168,9 +214,9 @@ const ChipDistributionSummary = ({
       }
       if (remainingValue !== 0) {
         console.log(`\n Failed: ${remainingValue} !== 0 Redenominating  `);
-        const redenominateIndex = numColors - (failCount % numColors);
+        const redenominateIndex = failCount % numColors;
         console.log("Redenominating index  ", redenominateIndex);
-        testDenomination = redenominate(testDenomination, redenominateIndex);
+        testDenomination = redenominate2(testDenomination, redenominateIndex);
         failCount += 1;
         fail = true;
       } else {
@@ -199,9 +245,7 @@ const ChipDistributionSummary = ({
         </View>
       ))}
       <Text style={styles.chipText}>
-        Total Value:{" "}
-        {distributions?.length > 0 &&
-          distributions.reduce((p, c, i) => p + c * denominations[i])}
+        Total Value:{totalValue} Pot Value: {potValue}
       </Text>
     </View>
   );
