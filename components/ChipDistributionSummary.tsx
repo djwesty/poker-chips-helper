@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ColorValue } from "react-native";
-// import { COLORS } from "@/app";
 
 interface ChipDistributionSummaryProps {
   playerCount: number;
@@ -45,7 +44,7 @@ const ChipDistributionSummary = ({
     return m;
   }, [playerCount, buyInAmount, totalChipsCount]);
 
-  // Helper function to return the closest (but lower) valid denomination to the target
+  // Return the closest (but lower) valid denomination to the target
   const findFloorDenomination = (target: number): validDenomination => {
     let current: validDenomination = validDenominations[0];
     validDenominations.forEach((value, index) => {
@@ -55,6 +54,7 @@ const ChipDistributionSummary = ({
   };
 
   // Bound for the value of the highest chip
+  // This is somewhat arbitray, but 1/3 to 1/4 is reasonable depending on the number of colors.
   const maxDenomination = useMemo(() => {
     if (chipMap.size > 3) {
       return findFloorDenomination(buyInAmount / 3);
@@ -69,6 +69,7 @@ const ChipDistributionSummary = ({
     [buyInAmount, playerCount]
   );
 
+  // The total value of all chips distributed to a single player. Ideally should be equal to buyInAmount
   const totalValue = useMemo(() => {
     let value = 0;
     for (let i = 0; i < totalChipsCount.length; i++) {
@@ -77,41 +78,18 @@ const ChipDistributionSummary = ({
     return value;
   }, [distributions, denominations]);
 
-  // Maximum quantity of each chip which may be distributed to a single player before running out
+  // Maximum quantity of each chip color which may be distributed to a single player before running out
   const maxPossibleDistribution = useMemo(
     () => totalChipsCount.map((v) => Math.floor(v / playerCount)),
     [totalChipsCount, playerCount]
   );
 
+  // Redenominate the chips in case of failure to properly distribute.
+  // Move the shuffle index to the next lowest denomination, and keep all else same
   const redenominate = (
     invalidDenomination: validDenomination[],
     shuffleIndex: number
   ): validDenomination[] => {
-    console.log("Old Denominations ", invalidDenomination);
-    const newDenomination: validDenomination[] = [];
-    for (let i = invalidDenomination.length - 1; i >= 0; i--) {
-      if (i > shuffleIndex) {
-        newDenomination.push(invalidDenomination[i]);
-      } else if (i == shuffleIndex) {
-        newDenomination.push(invalidDenomination[i]);
-      } else {
-        const nextLowestDenominationIndex = Math.max(
-          validDenominations.indexOf(invalidDenomination[i]) - 1,
-          0
-        );
-        newDenomination.push(validDenominations[nextLowestDenominationIndex]);
-      }
-    }
-    newDenomination.reverse();
-    console.log("New Denominations ", newDenomination);
-    return newDenomination;
-  };
-
-  const redenominate2 = (
-    invalidDenomination: validDenomination[],
-    shuffleIndex: number
-  ): validDenomination[] => {
-    console.log("Old Denominations ", invalidDenomination);
     let moved = false;
     const newDenomination: validDenomination[] = [];
     for (let i = invalidDenomination.length - 1; i >= 0; i--) {
@@ -131,12 +109,10 @@ const ChipDistributionSummary = ({
       }
     }
     newDenomination.reverse();
-    console.log("New Denominations ", newDenomination);
     return newDenomination;
   };
 
   useEffect(() => {
-    // const testDistribution: Map<ColorValue, number> = new Map();
     let testDenomination: validDenomination[] = [];
 
     const numColors = chipMap.size;
@@ -146,7 +122,6 @@ const ChipDistributionSummary = ({
     }
 
     let numColorsRemaining = numColors;
-    // testDistribution.set(colors[numColors - 1], maxDenomination);
     testDenomination.push(maxDenomination);
     numColorsRemaining -= 1;
     let currentDenominationIndex: number =
@@ -159,53 +134,21 @@ const ChipDistributionSummary = ({
     }
     testDenomination.reverse();
 
-    // console.log("BUY IN: ", buyInAmount);
-    // console.log("PLAYER COUNT ", playerCount);
-
-    // DISTRIBUTE
     let remainingValue = buyInAmount;
-    // console.log("\ntest Denomination", testDenomination);
-    // console.log("test distribution ", testDistribution);
-    // console.log("remainingChips", remainingChips);
-    // console.log("remaining value ", remainingValue);
-
-    //First distribute one of each chip to each player
-    // for (let i = numColors - 1; i >= 0; i--) {
-    //   testDistribution[i] = testDistribution[i] + 1;
-    //   remainingChips[i] = remainingChips[i] - 1;
-    //   remainingValue = remainingValue - testDenomination[i];
-    // }
-    // console.log("\ntest Denomination", testDenomination);
-    // console.log("test distribution ", testDistribution);
-    // console.log("remainingChips", remainingChips);
-    // console.log("remaining value ", remainingValue);
-
-    //Then, greedy approach to distribute remaining chips
 
     let fail = true;
     let failCount = 0;
-    while (fail && failCount < 10) {
+    while (fail && failCount < 1) {
       let stop = false;
       while (remainingValue > 0 && !stop) {
         let distributed = false;
         for (let i = numColors - 1; i >= 0; i = i - 1) {
-          console.log("i: ", i);
           if (testDistribution[i] < maxPossibleDistribution[i]) {
             if (remainingValue >= testDenomination[i]) {
-              // console.log("distributing ", testDenomination[i]);
               testDistribution[i] = testDistribution[i] + 1;
               remainingValue = remainingValue - testDenomination[i];
               distributed = true;
-            } else {
-              // console.log(
-              //   "Max distribution reached for value",
-              //   testDenomination[i],
-              //   "remaining value is ",
-              //   remainingValue
-              // );
             }
-          } else {
-            // console.log("no more chips left for ", colors[i]);
           }
         }
         if (distributed == false) {
@@ -213,10 +156,8 @@ const ChipDistributionSummary = ({
         }
       }
       if (remainingValue !== 0) {
-        console.log(`\n Failed: ${remainingValue} !== 0 Redenominating  `);
         const redenominateIndex = failCount % numColors;
-        console.log("Redenominating index  ", redenominateIndex);
-        testDenomination = redenominate2(testDenomination, redenominateIndex);
+        testDenomination = redenominate(testDenomination, redenominateIndex);
         failCount += 1;
         fail = true;
       } else {
@@ -224,29 +165,39 @@ const ChipDistributionSummary = ({
       }
     }
 
-    // console.log("\ntest Denomination", testDenomination);
-    // console.log("test distribution ", testDistribution);
-    // console.log("remainingChips", remainingChips);
-    // console.log("remaining value ", remainingValue);
-
     setDenominations(testDenomination);
     setDistributions(testDistribution);
   }, [chipMap, maxDenomination, buyInAmount, playerCount]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Chip Distribution Summary:</Text>
-      {colors.map((color, index) => (
-        <View style={styles.chipContainer} key={index}>
-          <Text style={{ ...styles.chipText, color: color }}>
-            {String(color).charAt(0).toUpperCase() + String(color).slice(1)}{" "}
-            chips: {distributions[index]} ( ${denominations[index]} each)
-          </Text>
-        </View>
-      ))}
-      <Text style={styles.chipText}>
-        Total Value:{totalValue} Pot Value: {potValue}
-      </Text>
+      <Text style={styles.title}>Distribution & Denomination</Text>
+      <Text style={styles.subTitle}>${potValue} Pot</Text>
+      <View style={styles.chipContainer}>
+        {totalChipsCount.map((_, index) => (
+          <View style={styles.chipRow} key={index}>
+            <Text
+              style={{
+                ...styles.chipText,
+                color: colors[index],
+                ...(colors[index] === "white" && styles.whiteShadow),
+              }}
+            >
+              {distributions[index]} chips:
+            </Text>
+            <Text
+              style={{
+                ...styles.chipText,
+                color: colors[index],
+                ...(colors[index] === "white" && styles.whiteShadow),
+              }}
+            >
+              ${denominations[index]} each
+            </Text>
+          </View>
+        ))}
+      </View>
+      <Text style={styles.chipText}>Total Value:{totalValue}</Text>
     </View>
   );
 };
@@ -255,22 +206,39 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 20,
     padding: 15,
-    backgroundColor: "#F8F9FA",
     borderRadius: 10,
+    display: "flex",
+    alignItems: "center",
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
   },
+  subTitle: {
+    fontSize: 16,
+    color: "gray",
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
   chipContainer: {
     marginTop: 10,
-    backgroundColor: "#888",
+  },
+  chipRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
   },
   chipText: {
     fontSize: 20,
     marginVertical: 2,
     fontWeight: "bold",
+  },
+  whiteShadow: {
+    textShadowColor: "black",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   noDataText: {
     fontSize: 16,
