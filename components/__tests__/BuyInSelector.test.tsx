@@ -54,7 +54,7 @@ describe("BuyInSelector Component", () => {
 
     fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "-10");
 
-    expect(setBuyInAmount).toHaveBeenCalledWith(null);
+    expect(setBuyInAmount).toHaveBeenCalledWith(25);
   });
 
   it("clears the custom amount when selecting a predefined option", () => {
@@ -80,9 +80,9 @@ describe("BuyInSelector Component", () => {
     expect(setBuyInAmount).toHaveBeenCalledWith(75);
 
     fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "-5");
-    expect(setBuyInAmount).toHaveBeenCalledWith(null);
+    expect(setBuyInAmount).toHaveBeenCalledWith(25);
 
     fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "abc");
-    expect(setBuyInAmount).toHaveBeenCalledWith(null);
+    expect(setBuyInAmount).toHaveBeenCalledWith(25);
   });
 });

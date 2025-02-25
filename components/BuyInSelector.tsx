@@ -9,7 +9,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 
 interface BuyInSelectorProps {
-  setBuyInAmount: React.Dispatch<React.SetStateAction<number | null>>;
+  setBuyInAmount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const defaultBuyInOptions = [10, 25, 50];
@@ -26,8 +26,8 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({ setBuyInAmount }) => {
       setBuyInAmount(numericValue);
     } else {
       setCustomAmount("");
-      setBuyInAmountState(null);
-      setBuyInAmount(null);
+      setBuyInAmountState(25);
+      setBuyInAmount(25);
     }
   };
 

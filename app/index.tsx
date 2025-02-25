@@ -6,9 +6,17 @@ import ChipsSelector from "@/components/ChipsSelector";
 import ChipDistributionSummary from "@/components/ChipDistributionSummary";
 import ChipDetection from "@/components/ChipDetection";
 
+export enum COLORS {
+  "white",
+  "red",
+  "green",
+  "blue",
+  "black",
+}
+
 const IndexScreen: React.FC = () => {
   const [playerCount, setPlayerCount] = useState(2);
-  const [buyInAmount, setBuyInAmount] = useState<number | null>(null);
+  const [buyInAmount, setBuyInAmount] = useState<number>(20);
   const [numberOfChips, setNumberOfChips] = useState<number>(5);
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
 
