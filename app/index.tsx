@@ -1,95 +1,114 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, Text, Alert, Button, View, StyleSheet } from "react-native";
+import { ScrollView, Text, Alert, Button } from "react-native";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
 import ChipDistributionSummary from "@/components/ChipDistributionSummary";
-import { saveState, loadState } from "../components/CalculatorState";
-import { savePersistentState, loadPersistentState } from "../components/PersistentState";
+import ChipDetection from "@/components/ChipDetection";
+import { saveState, loadState } from "@/components/CalculatorState";
+import { savePersistentState, loadPersistentState } from "@/components/PersistentState";
 
-const IndexScreen = () => {
+export enum COLORS {
+  "white",
+  "red",
+  "green",
+  "blue",
+  "black",
+}
+
+const IndexScreen: React.FC = () => {
   const [playerCount, setPlayerCount] = useState(2);
-  const [buyInAmount, setBuyInAmount] = useState<number | null>(null);
+  const [buyInAmount, setBuyInAmount] = useState<number>(20);
   const [numberOfChips, setNumberOfChips] = useState<number>(5);
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
 
+  // Load persistent data on startup
   useEffect(() => {
     const loadPersistentData = async () => {
-      const savedState = await loadPersistentState();
-      if (savedState) {
-        setPlayerCount(savedState.playerCount);
-        setBuyInAmount(savedState.buyInAmount);
-        setNumberOfChips(savedState.numberOfChips);
-        setTotalChipsCount(savedState.totalChipsCount);
+      try {
+        console.log("Loading persistent game state...");
+        const savedState = await loadPersistentState();
+        if (savedState) {
+          console.log("Persistent state restored:", savedState);
+          setPlayerCount(savedState.playerCount);
+          setBuyInAmount(savedState.buyInAmount);
+          setNumberOfChips(savedState.numberOfChips);
+          setTotalChipsCount(savedState.totalChipsCount);
+        } else {
+          console.log("No persistent state found.");
+        }
+      } catch (error) {
+        console.error("Error loading persistent state:", error);
       }
     };
     loadPersistentData();
   }, []);
 
-  useEffect(() => {
-    const state = { playerCount, buyInAmount, numberOfChips, totalChipsCount };
-    savePersistentState(state);
-  }, [playerCount, buyInAmount, numberOfChips, totalChipsCount]);
-
+  // Save game state to selected slot
   const handleSave = async (slot: "SLOT1" | "SLOT2") => {
     if (buyInAmount === null) {
       Alert.alert("Error", "Please select a valid buy-in amount");
       return;
     }
     const state = { playerCount, buyInAmount, numberOfChips, totalChipsCount };
-    const result = await saveState(slot, state);
-    Alert.alert(result.success ? "Success" : "Error", result.message);
+
+    try {
+      await saveState(slot, state);
+      await savePersistentState(state);
+      console.log(`Game state saved to ${slot}:`, state);
+      Alert.alert("Success", `State saved to ${slot}`);
+    } catch (error) {
+      console.error("Error saving state:", error);
+      Alert.alert("Error", "Failed to save state.");
+    }
   };
 
+  // Load game state from selected slot
   const handleLoad = async (slot: "SLOT1" | "SLOT2") => {
-    const loadedState = await loadState(slot);
-    if (loadedState) {
-      setPlayerCount(loadedState.playerCount);
-      setBuyInAmount(loadedState.buyInAmount);
-      setNumberOfChips(loadedState.numberOfChips);
-      setTotalChipsCount(loadedState.totalChipsCount);
-      Alert.alert("Success", `State loaded from ${slot}`);
-    } else {
-      Alert.alert("Info", "No saved state found");
+    try {
+      const loadedState = await loadState(slot);
+      if (loadedState) {
+        setPlayerCount(loadedState.playerCount);
+        setBuyInAmount(loadedState.buyInAmount);
+        setNumberOfChips(loadedState.numberOfChips);
+        setTotalChipsCount(loadedState.totalChipsCount);
+        await savePersistentState(loadedState);
+        console.log(`Game state loaded from ${slot}:`, loadedState);
+        Alert.alert("Success", `State loaded from ${slot}`);
+      } else {
+        Alert.alert("Info", "No saved state found.");
+      }
+    } catch (error) {
+      console.error("Error loading state:", error);
+      Alert.alert("Error", "Failed to load state.");
     }
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
-        <Text style={styles.title}>Poker Chip Helper</Text>
-        <PlayerSelector playerCount={playerCount} setPlayerCount={setPlayerCount} />
-        <BuyInSelector setBuyInAmount={setBuyInAmount} />
-        <ChipsSelector
-          totalChipsCount={totalChipsCount}
-          setTotalChipsCount={setTotalChipsCount}
-          numberOfChips={numberOfChips}
-          setNumberOfChips={setNumberOfChips}
-        />
-        <ChipDistributionSummary
-          playerCount={playerCount}
-          buyInAmount={buyInAmount}
-          totalChipsCount={totalChipsCount}
-        />
-        <Button title="Save to Slot 1" onPress={() => handleSave("SLOT1")} disabled={buyInAmount === null} />
-        <Button title="Save to Slot 2" onPress={() => handleSave("SLOT2")} disabled={buyInAmount === null} />
-        <Button title="Load from Slot 1" onPress={() => handleLoad("SLOT1")} />
-        <Button title="Load from Slot 2" onPress={() => handleLoad("SLOT2")} />
-      </ScrollView>
-    </View>
+    <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
+      <PlayerSelector playerCount={playerCount} setPlayerCount={setPlayerCount} />
+      <BuyInSelector setBuyInAmount={setBuyInAmount} />
+      <ChipDetection updateChipCount={(chipData) => {
+        const chipCountArray = Object.values(chipData);
+        setTotalChipsCount(chipCountArray);
+      }} />
+      <ChipsSelector
+        totalChipsCount={totalChipsCount}
+        setTotalChipsCount={setTotalChipsCount}
+        numberOfChips={numberOfChips}
+        setNumberOfChips={setNumberOfChips}
+      />
+      <ChipDistributionSummary
+        playerCount={playerCount}
+        buyInAmount={buyInAmount}
+        totalChipsCount={totalChipsCount}
+      />
+      <Button title="Save to Slot 1" onPress={() => handleSave("SLOT1")} disabled={buyInAmount === null} />
+      <Button title="Save to Slot 2" onPress={() => handleSave("SLOT2")} disabled={buyInAmount === null} />
+      <Button title="Load from Slot 1" onPress={() => handleLoad("SLOT1")} />
+      <Button title="Load from Slot 2" onPress={() => handleLoad("SLOT2")} />
+    </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 30,
-    marginTop: 50,
-    textAlign: "center",
-  },
-});
 
 export default IndexScreen;
