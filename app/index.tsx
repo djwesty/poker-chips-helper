@@ -38,25 +38,23 @@ const IndexScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
-        <Text style={styles.title}>Poker Chip Helper</Text>
-        <PlayerSelector playerCount={playerCount} setPlayerCount={setPlayerCount} />
-        <BuyInSelector setBuyInAmount={setBuyInAmount} />
-        <ChipsSelector
-          totalChipsCount={totalChipsCount}
-          setTotalChipsCount={setTotalChipsCount}
-          numberOfChips={numberOfChips}
-          setNumberOfChips={setNumberOfChips}
-        />
-        <ChipDistributionSummary
-          playerCount={playerCount}
-          buyInAmount={buyInAmount}
-          totalChipsCount={totalChipsCount}
-        />
-        <Button title="Save to Slot 1" onPress={() => handleSave("SLOT1")} disabled={buyInAmount === null} />
-        <Button title="Save to Slot 2" onPress={() => handleSave("SLOT2")} disabled={buyInAmount === null} />
-        <Button title="Load from Slot 1" onPress={() => handleLoad("SLOT1")} />
-        <Button title="Load from Slot 2" onPress={() => handleLoad("SLOT2")} />
-      </ScrollView>
+      <PlayerSelector playerCount={playerCount} setPlayerCount={setPlayerCount} />
+      <BuyInSelector setBuyInAmount={setBuyInAmount} />
+      <ChipDetection updateChipCount={updateChipCount} />
+      <ChipsSelector
+        totalChipsCount={totalChipsCount}
+        setTotalChipsCount={setTotalChipsCount}
+        numberOfChips={numberOfChips}
+        setNumberOfChips={setNumberOfChips}
+      />
+      <ChipDistributionSummary
+        playerCount={playerCount}
+        buyInAmount={buyInAmount}
+        totalChipsCount={totalChipsCount}
+      />
+      <Button title="Save to Slot 1" onPress={() => handleSave("SLOT1")} disabled={buyInAmount === null} />
+      <Button title="Save to Slot 2" onPress={() => handleSave("SLOT2")} disabled={buyInAmount === null} />
+    </ScrollView>
     </View>
   );
 };
