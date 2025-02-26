@@ -1,71 +1,76 @@
 import React, { useState } from "react";
-import { ScrollView, Text, Alert, Button } from "react-native";
+import { ScrollView, Text, Alert, Button, View, StyleSheet } from "react-native";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
 import ChipDistributionSummary from "@/components/ChipDistributionSummary";
-import ChipDetection from "@/components/ChipDetection";
+import { saveState, loadState } from "../components/CalculatorState";
 
-export enum COLORS {
-  "white",
-  "red",
-  "green",
-  "blue",
-  "black",
-}
-
-const IndexScreen: React.FC = () => {
+const IndexScreen = () => {
   const [playerCount, setPlayerCount] = useState(2);
-  const [buyInAmount, setBuyInAmount] = useState<number>(20);
+  const [buyInAmount, setBuyInAmount] = useState<number | null>(null);
   const [numberOfChips, setNumberOfChips] = useState<number>(5);
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
 
-  const handleSave = () => {
+  const handleSave = async (slot: "SLOT1" | "SLOT2") => {
     if (buyInAmount === null) {
       Alert.alert("Error", "Please select a valid buy-in amount");
+      return;
+    }
+    const state = { playerCount, buyInAmount, numberOfChips, totalChipsCount };
+    const result = await saveState(slot, state);
+    Alert.alert(result.success ? "Success" : "Error", result.message);
+  };
+
+  const handleLoad = async (slot: "SLOT1" | "SLOT2") => {
+    const loadedState = await loadState(slot);
+    if (loadedState) {
+      setPlayerCount(loadedState.playerCount);
+      setBuyInAmount(loadedState.buyInAmount);
+      setNumberOfChips(loadedState.numberOfChips);
+      setTotalChipsCount(loadedState.totalChipsCount);
+      Alert.alert("Success", `State loaded from ${slot}`);
     } else {
-      Alert.alert(
-        "Success",
-        `Buy-in amount set to ${buyInAmount} for ${playerCount} players`
-      );
+      Alert.alert("Info", "No saved state found");
     }
   };
 
-  // Update chip count based on detection or manual edit
-  const updateChipCount = (chipData: { [color: string]: number }) => {
-    // Convert the chip data from the API response or manual edit to a count array
-    const chipCountArray = Object.entries(chipData).map(
-      ([color, count]) => count
-    );
-    setTotalChipsCount(chipCountArray); // Update the parent component's state
-  };
-
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
-      <PlayerSelector
-        playerCount={playerCount}
-        setPlayerCount={setPlayerCount}
-      />
-      <BuyInSelector setBuyInAmount={setBuyInAmount} />
-      <ChipDetection updateChipCount={updateChipCount} />
-      <ChipsSelector
-        totalChipsCount={totalChipsCount}
-        setTotalChipsCount={setTotalChipsCount}
-        numberOfChips={numberOfChips}
-        setNumberOfChips={setNumberOfChips}
-      />
-      <ChipDistributionSummary
-        playerCount={playerCount}
-        buyInAmount={buyInAmount}
-        totalChipsCount={totalChipsCount}
-      />
-      <Button
-        title="Save"
-        onPress={handleSave}
-        disabled={buyInAmount === null}
-      />
-    </ScrollView>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
+        <Text style={styles.title}>Poker Chip Helper</Text>
+        <PlayerSelector playerCount={playerCount} setPlayerCount={setPlayerCount} />
+        <BuyInSelector setBuyInAmount={setBuyInAmount} />
+        <ChipsSelector
+          totalChipsCount={totalChipsCount}
+          setTotalChipsCount={setTotalChipsCount}
+          numberOfChips={numberOfChips}
+          setNumberOfChips={setNumberOfChips}
+        />
+        <ChipDistributionSummary
+          playerCount={playerCount}
+          buyInAmount={buyInAmount}
+          totalChipsCount={totalChipsCount}
+        />
+        <Button title="Save to Slot 1" onPress={() => handleSave("SLOT1")} disabled={buyInAmount === null} />
+        <Button title="Save to Slot 2" onPress={() => handleSave("SLOT2")} disabled={buyInAmount === null} />
+        <Button title="Load from Slot 1" onPress={() => handleLoad("SLOT1")} />
+        <Button title="Load from Slot 2" onPress={() => handleLoad("SLOT2")} />
+      </ScrollView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 30,
+    marginTop: 50,
+    textAlign: "center",
+  },
+});
 
 export default IndexScreen;
