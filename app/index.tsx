@@ -1,16 +1,38 @@
-import React, { useState } from "react";
-import { ScrollView, Text, Alert, Button, View, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { ScrollView, Alert, Button } from "react-native";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
 import ChipDistributionSummary from "@/components/ChipDistributionSummary";
-import { saveState, loadState } from "../components/CalculatorState";
+import ChipDetection from "@/components/ChipDetection";
+import { saveState, loadState } from "@/components/CalculatorState";
 
-const IndexScreen = () => {
+export enum COLORS {
+  "white",
+  "red",
+  "green",
+  "blue",
+  "black",
+}
+
+const IndexScreen: React.FC = () => {
   const [playerCount, setPlayerCount] = useState(2);
-  const [buyInAmount, setBuyInAmount] = useState<number | null>(null);
+  const [buyInAmount, setBuyInAmount] = useState<number>(20);
   const [numberOfChips, setNumberOfChips] = useState<number>(5);
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
+
+  useEffect(() => {
+    const loadSavedState = async () => {
+      const savedState = await loadState("SLOT1"); // Default loading from SLOT1
+      if (savedState) {
+        setPlayerCount(savedState.playerCount);
+        setBuyInAmount(savedState.buyInAmount);
+        setNumberOfChips(savedState.numberOfChips);
+        setTotalChipsCount(savedState.totalChipsCount);
+      }
+    };
+    loadSavedState();
+  }, []);
 
   const handleSave = async (slot: "SLOT1" | "SLOT2") => {
     if (buyInAmount === null) {
@@ -35,9 +57,13 @@ const IndexScreen = () => {
     }
   };
 
+  const updateChipCount = (chipData: { [color: string]: number }) => {
+    const chipCountArray = Object.values(chipData);
+    setTotalChipsCount(chipCountArray);
+  };
+
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
+    <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
       <PlayerSelector playerCount={playerCount} setPlayerCount={setPlayerCount} />
       <BuyInSelector setBuyInAmount={setBuyInAmount} />
       <ChipDetection updateChipCount={updateChipCount} />
@@ -54,21 +80,10 @@ const IndexScreen = () => {
       />
       <Button title="Save to Slot 1" onPress={() => handleSave("SLOT1")} disabled={buyInAmount === null} />
       <Button title="Save to Slot 2" onPress={() => handleSave("SLOT2")} disabled={buyInAmount === null} />
+      <Button title="Load from Slot 1" onPress={() => handleLoad("SLOT1")} />
+      <Button title="Load from Slot 2" onPress={() => handleLoad("SLOT2")} />
     </ScrollView>
-    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 30,
-    marginTop: 50,
-    textAlign: "center",
-  },
-});
 
 export default IndexScreen;
