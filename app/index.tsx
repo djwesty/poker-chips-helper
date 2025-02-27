@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, Alert, Button } from "react-native";
+import { ScrollView, Text, Alert, Button } from "react-native";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
 import ChipDistributionSummary from "@/components/ChipDistributionSummary";
 import ChipDetection from "@/components/ChipDetection";
 import { saveState, loadState } from "@/components/CalculatorState";
+import { savePersistentState, loadPersistentState } from "@/components/PersistentState";
 
 export enum COLORS {
   "white",
@@ -21,52 +22,76 @@ const IndexScreen: React.FC = () => {
   const [numberOfChips, setNumberOfChips] = useState<number>(5);
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
 
+  // Load persistent data on startup
   useEffect(() => {
-    const loadSavedState = async () => {
-      const savedState = await loadState("SLOT1"); // Default loading from SLOT1
-      if (savedState) {
-        setPlayerCount(savedState.playerCount);
-        setBuyInAmount(savedState.buyInAmount);
-        setNumberOfChips(savedState.numberOfChips);
-        setTotalChipsCount(savedState.totalChipsCount);
+    const loadPersistentData = async () => {
+      try {
+        console.log("Loading persistent game state...");
+        const savedState = await loadPersistentState();
+        if (savedState) {
+          console.log("Persistent state restored:", savedState);
+          setPlayerCount(savedState.playerCount);
+          setBuyInAmount(savedState.buyInAmount);
+          setNumberOfChips(savedState.numberOfChips);
+          setTotalChipsCount(savedState.totalChipsCount);
+        } else {
+          console.log("No persistent state found.");
+        }
+      } catch (error) {
+        console.error("Error loading persistent state:", error);
       }
     };
-    loadSavedState();
+    loadPersistentData();
   }, []);
 
+  // Save game state to selected slot
   const handleSave = async (slot: "SLOT1" | "SLOT2") => {
     if (buyInAmount === null) {
       Alert.alert("Error", "Please select a valid buy-in amount");
       return;
     }
     const state = { playerCount, buyInAmount, numberOfChips, totalChipsCount };
-    const result = await saveState(slot, state);
-    Alert.alert(result.success ? "Success" : "Error", result.message);
-  };
 
-  const handleLoad = async (slot: "SLOT1" | "SLOT2") => {
-    const loadedState = await loadState(slot);
-    if (loadedState) {
-      setPlayerCount(loadedState.playerCount);
-      setBuyInAmount(loadedState.buyInAmount);
-      setNumberOfChips(loadedState.numberOfChips);
-      setTotalChipsCount(loadedState.totalChipsCount);
-      Alert.alert("Success", `State loaded from ${slot}`);
-    } else {
-      Alert.alert("Info", "No saved state found");
+    try {
+      await saveState(slot, state);
+      await savePersistentState(state);
+      console.log(`Game state saved to ${slot}:`, state);
+      Alert.alert("Success", `State saved to ${slot}`);
+    } catch (error) {
+      console.error("Error saving state:", error);
+      Alert.alert("Error", "Failed to save state.");
     }
   };
 
-  const updateChipCount = (chipData: { [color: string]: number }) => {
-    const chipCountArray = Object.values(chipData);
-    setTotalChipsCount(chipCountArray);
+  // Load game state from selected slot
+  const handleLoad = async (slot: "SLOT1" | "SLOT2") => {
+    try {
+      const loadedState = await loadState(slot);
+      if (loadedState) {
+        setPlayerCount(loadedState.playerCount);
+        setBuyInAmount(loadedState.buyInAmount);
+        setNumberOfChips(loadedState.numberOfChips);
+        setTotalChipsCount(loadedState.totalChipsCount);
+        await savePersistentState(loadedState);
+        console.log(`Game state loaded from ${slot}:`, loadedState);
+        Alert.alert("Success", `State loaded from ${slot}`);
+      } else {
+        Alert.alert("Info", "No saved state found.");
+      }
+    } catch (error) {
+      console.error("Error loading state:", error);
+      Alert.alert("Error", "Failed to load state.");
+    }
   };
 
   return (
     <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
       <PlayerSelector playerCount={playerCount} setPlayerCount={setPlayerCount} />
       <BuyInSelector setBuyInAmount={setBuyInAmount} />
-      <ChipDetection updateChipCount={updateChipCount} />
+      <ChipDetection updateChipCount={(chipData) => {
+        const chipCountArray = Object.values(chipData);
+        setTotalChipsCount(chipCountArray);
+      }} />
       <ChipsSelector
         totalChipsCount={totalChipsCount}
         setTotalChipsCount={setTotalChipsCount}
