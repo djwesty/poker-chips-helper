@@ -60,6 +60,19 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+### Android APK build
+
+To create an APK build, use the following
+
+```bash
+npx expo prebuild
+cd android
+./gradlew assembleRelease # linux
+gradew.bat assembleRelease # possible windows command
+```
+
+Then, see `android/app/build/outputs/apk/release/app-release.apk` for the output
+
 ### Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
