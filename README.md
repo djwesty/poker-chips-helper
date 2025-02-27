@@ -68,7 +68,7 @@ To create an APK build, use the following
 npx expo prebuild
 cd android
 ./gradlew assembleRelease # linux
-gradew.bat assembleRelease # possible windows command
+gradlew.bat assembleRelease # possible windows command
 ```
 
 Then, see `android/app/build/outputs/apk/release/app-release.apk` for the output
