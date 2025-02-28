@@ -10,11 +10,15 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 interface BuyInSelectorProps {
   setBuyInAmount: React.Dispatch<React.SetStateAction<number>>;
+  selectedCurrency: string; // Accept selectedCurrency as a prop
 }
 
 const defaultBuyInOptions = [10, 25, 50];
 
-const BuyInSelector: React.FC<BuyInSelectorProps> = ({ setBuyInAmount }) => {
+const BuyInSelector: React.FC<BuyInSelectorProps> = ({
+  setBuyInAmount,
+  selectedCurrency,
+}) => {
   const [customAmount, setCustomAmount] = useState("");
   const [buyInAmount, setBuyInAmountState] = useState<number | null>(null);
 
@@ -54,7 +58,10 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({ setBuyInAmount }) => {
             ]}
             onPress={() => handleBuyInSelection(amount)}
           >
-            <Text style={styles.buttonText}>{amount}</Text>
+            <Text style={styles.buttonText}>
+              {selectedCurrency} {amount}{" "}
+              {/* Display the selected currency before the amount */}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -69,7 +76,9 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({ setBuyInAmount }) => {
       />
 
       <Text style={styles.selectionText}>
-        Selected Buy-in: {buyInAmount !== null ? buyInAmount : "None"}
+        Selected Buy-in:{" "}
+        {buyInAmount !== null ? `${selectedCurrency} ${buyInAmount}` : "None"}{" "}
+        {/* Display the currency here */}
       </Text>
     </View>
   );

@@ -23,14 +23,18 @@ describe("ChipDistributionSummary Component", () => {
     expect(getByText("Distribution & Denomination")).toBeTruthy();
 
     expectedDistribution.forEach((count, index) => {
-      expect(getAllByText(new RegExp(`${count} chips:`, "i"))).toBeTruthy();
+      // Ensure "X chips:" appears correctly
+      expect(getAllByText(new RegExp(`^${count}\\s+chips:`, "i"))).toBeTruthy();
+
+      // Ensure value format matches the rendered output
       expect(
-        getByText(new RegExp(`\\$${expectedDenominations[index]} each`, "i"))
+        getByText(
+          new RegExp(`^\\s*${expectedDenominations[index]}\\s+each$`, "i")
+        )
       ).toBeTruthy();
     });
   });
 
-  // Case not currently supported
   test.skip("renders fallback message when no valid distribution", () => {
     const { getByText } = render(
       <ChipDistributionSummary
@@ -42,7 +46,6 @@ describe("ChipDistributionSummary Component", () => {
     expect(getByText("No valid distribution calculated yet.")).toBeTruthy();
   });
 
-  // Case not currently supported
   test.skip("scales down chips if exceeding MAX_CHIPS", () => {
     const playerCount = 2;
     let totalChipsCount = [300, 400, 500, 600, 700];
@@ -56,7 +59,7 @@ describe("ChipDistributionSummary Component", () => {
       );
     }
 
-    const expectedDistribution = [30, 40, 50, 60, 70]; // Adjust to match actual component calculations
+    const expectedDistribution = [30, 40, 50, 60, 70]; // Adjust as per actual component calculations
 
     const { getByText } = render(
       <ChipDistributionSummary
@@ -69,8 +72,7 @@ describe("ChipDistributionSummary Component", () => {
     expect(getByText("Distribution & Denomination")).toBeTruthy();
 
     expectedDistribution.forEach((count, index) => {
-      expect(getByText(new RegExp(`${count} chips:`, "i"))).toBeTruthy();
-      // expect(getByText(new RegExp(`$${count} each`, "i"))).toBeTruthy();
+      expect(getByText(new RegExp(`^${count}\\s+chips:`, "i"))).toBeTruthy();
     });
   });
 });
