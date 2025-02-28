@@ -25,7 +25,11 @@ describe("ChipDetection", () => {
             choices: [
               {
                 message: {
-                  content: JSON.stringify({ red: 5, green: 3, blue: 0 }),
+                  content: JSON.stringify({
+                    red: 5,
+                    green: 3,
+                    blue: 0,
+                  }),
                 },
               },
             ],
@@ -70,7 +74,9 @@ describe("ChipDetection", () => {
     );
     fireEvent.press(getByText("Take a Photo"));
 
-    await waitFor(() => expect(mockUpdateChipCount).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(mockUpdateChipCount).toHaveBeenCalledWith({ red: 5, green: 3 })
+    );
   });
 
   it("handles camera permission denied", async () => {
