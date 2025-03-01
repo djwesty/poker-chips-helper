@@ -8,7 +8,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
+import { FontAwesome } from "@expo/vector-icons";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
@@ -20,6 +20,7 @@ import {
   savePersistentState,
   loadPersistentState,
 } from "@/components/PersistentState";
+
 export enum COLORS {
   "white",
   "red",
@@ -109,7 +110,7 @@ const IndexScreen: React.FC = () => {
           onPress={() => setIsSettingsVisible(!isSettingsVisible)}
         >
           <Text>
-            <Icon name="cog" size={30} color="black" />
+            <FontAwesome name="cog" size={30} color="black" />
           </Text>
         </TouchableOpacity>
       </View>
