@@ -6,7 +6,9 @@ import {
   Button,
   View,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
@@ -18,8 +20,6 @@ import {
   savePersistentState,
   loadPersistentState,
 } from "@/components/PersistentState";
-
-// Your existing states
 export enum COLORS {
   "white",
   "red",
@@ -36,7 +36,6 @@ const IndexScreen: React.FC = () => {
   const [selectedCurrency, setSelectedCurrency] = useState<string>("$");
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
 
-  // Load persistent data on startup
   useEffect(() => {
     const loadPersistentData = async () => {
       try {
@@ -44,11 +43,11 @@ const IndexScreen: React.FC = () => {
         const savedState = await loadPersistentState();
         if (savedState) {
           console.log("Persistent state restored:", savedState);
-          setPlayerCount(savedState.playerCount || 2); // Use defaults if missing
-          setBuyInAmount(savedState.buyInAmount || 20); // Use defaults if missing
-          setNumberOfChips(savedState.numberOfChips || 5); // Use defaults if missing
-          setTotalChipsCount(savedState.totalChipsCount || []); // Use defaults if missing
-          setSelectedCurrency(savedState.selectedCurrency || "$"); // Restore the selected currency, defaulting to "$" if not available
+          setPlayerCount(savedState.playerCount || 2);
+          setBuyInAmount(savedState.buyInAmount || 20);
+          setNumberOfChips(savedState.numberOfChips || 5);
+          setTotalChipsCount(savedState.totalChipsCount || []);
+          setSelectedCurrency(savedState.selectedCurrency || "$");
         } else {
           console.log("No persistent state found, using defaults.");
         }
@@ -106,16 +105,17 @@ const IndexScreen: React.FC = () => {
   return (
     <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Poker Chips Helper</Text>
-        <Button
-          title="Settings"
+        <TouchableOpacity
           onPress={() => setIsSettingsVisible(!isSettingsVisible)}
-        />
+        >
+          <Text>
+            <Icon name="cog" size={30} color="black" />
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {isSettingsVisible && (
         <View style={styles.settingsContainer}>
-          <Text style={styles.settingTitle}>Currency Selector</Text>
           <CurrencySelector
             selectedCurrency={selectedCurrency}
             setSelectedCurrency={setSelectedCurrency}
@@ -139,6 +139,7 @@ const IndexScreen: React.FC = () => {
           setTotalChipsCount(chipCountArray);
         }}
       />
+
       <ChipsSelector
         totalChipsCount={totalChipsCount}
         setTotalChipsCount={setTotalChipsCount}
@@ -153,18 +154,20 @@ const IndexScreen: React.FC = () => {
         selectedCurrency={selectedCurrency}
       />
 
-      <Button
-        title="Save to Slot 1"
-        onPress={() => handleSave("SLOT1")}
-        disabled={buyInAmount === null}
-      />
-      <Button
-        title="Save to Slot 2"
-        onPress={() => handleSave("SLOT2")}
-        disabled={buyInAmount === null}
-      />
-      <Button title="Load from Slot 1" onPress={() => handleLoad("SLOT1")} />
-      <Button title="Load from Slot 2" onPress={() => handleLoad("SLOT2")} />
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Save to Slot 1"
+          onPress={() => handleSave("SLOT1")}
+          disabled={buyInAmount === null}
+        />
+        <Button
+          title="Save to Slot 2"
+          onPress={() => handleSave("SLOT2")}
+          disabled={buyInAmount === null}
+        />
+        <Button title="Load from Slot 1" onPress={() => handleLoad("SLOT1")} />
+        <Button title="Load from Slot 2" onPress={() => handleLoad("SLOT2")} />
+      </View>
     </ScrollView>
   );
 };
@@ -172,13 +175,9 @@ const IndexScreen: React.FC = () => {
 const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
   },
   settingsContainer: {
     marginBottom: 20,
@@ -190,6 +189,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
+  },
+  buttonContainer: {
+    marginTop: 20,
   },
 });
 
