@@ -10,9 +10,13 @@ export interface PokerState {
   buyInAmount: number | null;
   numberOfChips: number;
   totalChipsCount: number[];
+  selectedCurrency: string;
 }
 
-export const saveState = async (slot: keyof typeof STORAGE_KEYS, state: PokerState) => {
+export const saveState = async (
+  slot: keyof typeof STORAGE_KEYS,
+  state: PokerState
+) => {
   try {
     await AsyncStorage.setItem(STORAGE_KEYS[slot], JSON.stringify(state));
     return { success: true, message: `State saved to ${slot}` };
@@ -21,7 +25,9 @@ export const saveState = async (slot: keyof typeof STORAGE_KEYS, state: PokerSta
   }
 };
 
-export const loadState = async (slot: keyof typeof STORAGE_KEYS): Promise<PokerState | null> => {
+export const loadState = async (
+  slot: keyof typeof STORAGE_KEYS
+): Promise<PokerState | null> => {
   try {
     const storedState = await AsyncStorage.getItem(STORAGE_KEYS[slot]);
     return storedState ? JSON.parse(storedState) : null;

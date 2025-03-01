@@ -7,6 +7,7 @@ interface ChipDistributionSummaryProps {
   buyInAmount: number;
   totalChipsCount: number[];
   colors?: ColorValue[];
+  selectedCurrency: string; // Add the selectedCurrency as a prop here
 }
 
 const ChipDistributionSummary = ({
@@ -14,6 +15,7 @@ const ChipDistributionSummary = ({
   buyInAmount,
   totalChipsCount,
   colors = ["white", "red", "green", "blue", "black"],
+  selectedCurrency,
 }: ChipDistributionSummaryProps) => {
   const validDenominations: validDenomination[] = [
     0.05, 0.1, 0.25, 0.5, 1, 2, 2.5, 5, 10, 20, 50, 100,
@@ -35,7 +37,6 @@ const ChipDistributionSummary = ({
     | 50
     | 100;
 
-  // Return the closest (but lower) valid denomination to the target
   const findFloorDenomination = (target: number): validDenomination => {
     let current: validDenomination = validDenominations[0];
     validDenominations.forEach((value, index) => {
@@ -44,8 +45,6 @@ const ChipDistributionSummary = ({
     return current;
   };
 
-  // Bound for the value of the highest chip
-  // This is somewhat arbitray, but 1/3 to 1/4 is reasonable depending on the number of colors.
   const maxDenomination = useMemo(() => {
     if (totalChipsCount.length > 3) {
       return findFloorDenomination(buyInAmount / 3);
@@ -54,13 +53,11 @@ const ChipDistributionSummary = ({
     }
   }, [totalChipsCount]);
 
-  // Total value of the pot
   const potValue = useMemo(
     () => buyInAmount * playerCount,
     [buyInAmount, playerCount]
   );
 
-  // The total value of all chips distributed to a single player. Ideally should be equal to buyInAmount
   const totalValue = useMemo(() => {
     let value = 0;
     for (let i = 0; i < totalChipsCount.length; i++) {
@@ -69,14 +66,11 @@ const ChipDistributionSummary = ({
     return value;
   }, [distributions, denominations]);
 
-  // Maximum quantity of each chip color which may be distributed to a single player before running out
   const maxPossibleDistribution = useMemo(
     () => totalChipsCount.map((v) => Math.floor(v / playerCount)),
     [totalChipsCount, playerCount]
   );
 
-  // Redenominate the chips in case of failure to properly distribute.
-  // Move the shuffle index to the next lowest denomination, and keep all else same
   const redenominate = useCallback(
     (
       invalidDenomination: validDenomination[],
@@ -106,17 +100,14 @@ const ChipDistributionSummary = ({
     []
   );
 
-  // Dynamically set denominations and distributions from changing inputs
   useEffect(() => {
     let testDenomination: validDenomination[] = [];
-
     const numColors = totalChipsCount.length;
     const testDistribution: number[] = [];
     for (let i = 0; i < numColors; ++i) {
       testDistribution.push(0);
     }
 
-    // Start with max denominations, then push on the next adjacent lower denomination
     testDenomination.push(maxDenomination);
     let currentDenominationIndex: number =
       validDenominations.indexOf(maxDenomination);
@@ -127,9 +118,6 @@ const ChipDistributionSummary = ({
     }
     testDenomination.reverse();
 
-    // Distribute the chips using the test denomination
-    // If distribution fails to equal the buy-in, redenominate and re-try
-    // Algorithm could be improved with more complexity and optimization
     let remainingValue = buyInAmount;
     let fail = true;
     let failCount = 0;
@@ -167,7 +155,9 @@ const ChipDistributionSummary = ({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Distribution & Denomination</Text>
-      <Text style={styles.subTitle}>${potValue} Pot</Text>
+      <Text style={styles.subTitle}>
+        {selectedCurrency} {potValue} Pot
+      </Text>
       <View style={styles.chipContainer}>
         {totalChipsCount.map((_, index) => (
           <View style={styles.chipRow} key={index}>
@@ -187,12 +177,14 @@ const ChipDistributionSummary = ({
                 ...(colors[index] === "white" && styles.whiteShadow),
               }}
             >
-              ${denominations[index]} each
+              {selectedCurrency} {denominations[index]} each
             </Text>
           </View>
         ))}
       </View>
-      <Text style={styles.chipText}>Total Value:{totalValue}</Text>
+      <Text style={styles.chipText}>
+        Total Value: {selectedCurrency} {totalValue}
+      </Text>
     </View>
   );
 };

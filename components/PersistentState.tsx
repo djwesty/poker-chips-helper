@@ -7,8 +7,18 @@ export interface PokerState {
   buyInAmount: number | null;
   numberOfChips: number;
   totalChipsCount: number[];
+  selectedCurrency: string;
 }
 
+const DEFAULT_STATE: PokerState = {
+  playerCount: 0,
+  buyInAmount: null,
+  numberOfChips: 0,
+  totalChipsCount: [],
+  selectedCurrency: "$",
+};
+
+// 🔹 Save state with currency
 export const savePersistentState = async (state: PokerState) => {
   try {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -18,11 +28,12 @@ export const savePersistentState = async (state: PokerState) => {
   }
 };
 
-export const loadPersistentState = async (): Promise<PokerState | null> => {
+// 🔹 Load state with currency
+export const loadPersistentState = async (): Promise<PokerState> => {
   try {
     const storedState = await AsyncStorage.getItem(STORAGE_KEY);
-    return storedState ? JSON.parse(storedState) : null;
+    return storedState ? JSON.parse(storedState) : DEFAULT_STATE; // Ensure default values
   } catch (error) {
-    return null;
+    return DEFAULT_STATE;
   }
 };

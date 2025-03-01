@@ -14,28 +14,34 @@ describe("BuyInSelector Component", () => {
   let getByText;
   let getByPlaceholderText;
 
-  const renderComponent = () => {
-    const result = render(<BuyInSelector setBuyInAmount={setBuyInAmount} />);
+  // Render the component with the necessary props
+  const renderComponent = (selectedCurrency = "$") => {
+    const result = render(
+      <BuyInSelector
+        setBuyInAmount={setBuyInAmount}
+        selectedCurrency={selectedCurrency}
+      />
+    );
     getByText = result.getByText;
     getByPlaceholderText = result.getByPlaceholderText;
   };
 
   beforeEach(() => {
     setBuyInAmount = jest.fn();
-    renderComponent();
+    renderComponent(); // Render with default currency
   });
 
   it("renders the buy-in options and input correctly", () => {
     expect(getByText("Select Buy-in Amount:")).toBeTruthy();
-    expect(getByText("10")).toBeTruthy();
-    expect(getByText("25")).toBeTruthy();
-    expect(getByText("50")).toBeTruthy();
+    expect(getByText("$ 10")).toBeTruthy();
+    expect(getByText("$ 25")).toBeTruthy();
+    expect(getByText("$ 50")).toBeTruthy();
     expect(getByPlaceholderText("Enter custom buy-in")).toBeTruthy();
     expect(getByText("Selected Buy-in: None")).toBeTruthy(); // Check default selection
   });
 
   it("sets a predefined buy-in amount correctly", () => {
-    fireEvent.press(getByText("25"));
+    fireEvent.press(getByText("$ 25"));
     expect(setBuyInAmount).toHaveBeenCalledWith(25);
   });
 
@@ -53,7 +59,7 @@ describe("BuyInSelector Component", () => {
 
   it("clears the custom amount when selecting a predefined option", () => {
     fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "100");
-    fireEvent.press(getByText("50"));
+    fireEvent.press(getByText("$ 50"));
     expect(setBuyInAmount).toHaveBeenCalledWith(50);
   });
 
@@ -69,8 +75,8 @@ describe("BuyInSelector Component", () => {
   });
 
   it("triggers state update every time a buy-in option is clicked, even if it's the same", () => {
-    fireEvent.press(getByText("25")); // First click
-    fireEvent.press(getByText("25")); // Clicking the same option again
+    fireEvent.press(getByText("$ 25")); // First click
+    fireEvent.press(getByText("$ 25")); // Clicking the same option again
     expect(setBuyInAmount).toHaveBeenCalledTimes(2); // Expect it to be called twice
   });
 
@@ -85,7 +91,15 @@ describe("BuyInSelector Component", () => {
   it("updates state correctly when selecting predefined buy-in after entering a custom amount", () => {
     fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "200");
     expect(setBuyInAmount).toHaveBeenCalledWith(200);
-    fireEvent.press(getByText("10"));
+    fireEvent.press(getByText("$ 10"));
     expect(setBuyInAmount).toHaveBeenCalledWith(10);
+  });
+
+  it("displays selected currency correctly", () => {
+    renderComponent("€"); // Test with a different currency
+    expect(getByText("€ 10")).toBeTruthy();
+    expect(getByText("€ 25")).toBeTruthy();
+    expect(getByText("€ 50")).toBeTruthy();
+    expect(getByText("Selected Buy-in: None")).toBeTruthy();
   });
 });
