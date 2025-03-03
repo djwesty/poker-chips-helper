@@ -1,12 +1,7 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { View, Text, TextInput } from "react-native";
+import styles, { COLORS } from "@/styles/styles";
+import Button from "@/containers/Button";
 
 interface BuyInSelectorProps {
   setBuyInAmount: React.Dispatch<React.SetStateAction<number>>;
@@ -42,31 +37,19 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <MaterialIcons name="monetization-on" size={30} color="green" />
-        <Text style={styles.title}>Select Buy-in Amount:</Text>
-      </View>
-
-      <View style={styles.optionsContainer}>
+    <>
+      <View style={{ ...styles.container, flexDirection: "row" }}>
         {defaultBuyInOptions.map((amount) => (
-          <TouchableOpacity
+          <Button
             key={amount}
-            style={[
-              styles.buyInButton,
-              buyInAmount === amount ? styles.selectedButton : null,
-            ]}
+            color={buyInAmount === amount ? COLORS.PRIMARY : COLORS.SECONDARY}
             onPress={() => handleBuyInSelection(amount)}
-          >
-            <Text style={styles.buttonText}>
-              {selectedCurrency} {amount}{" "}
-              {/* Display the selected currency before the amount */}
-            </Text>
-          </TouchableOpacity>
+            title={`${selectedCurrency} ${amount}`}
+          ></Button>
         ))}
       </View>
 
-      <Text style={styles.orText}>Or enter a custom amount:</Text>
+      <Text style={styles.p}>Or enter a custom amount:</Text>
       <TextInput
         style={styles.input}
         value={customAmount}
@@ -75,60 +58,12 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
         keyboardType="numeric"
       />
 
-      <Text style={styles.selectionText}>
+      <Text style={styles.h2}>
         Selected Buy-in:{" "}
-        {buyInAmount !== null ? `${selectedCurrency} ${buyInAmount}` : "None"}{" "}
-        {/* Display the currency here */}
+        {buyInAmount !== null ? `${selectedCurrency} ${buyInAmount}` : "None"}
       </Text>
-    </View>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 22,
-    marginLeft: 10,
-  },
-  optionsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginVertical: 10,
-  },
-  buyInButton: {
-    backgroundColor: "#ddd",
-    padding: 10,
-    borderRadius: 5,
-  },
-  selectedButton: {
-    backgroundColor: "#4caf50",
-  },
-  buttonText: {
-    fontSize: 16,
-  },
-  orText: {
-    marginTop: 10,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 8,
-    marginVertical: 10,
-    borderRadius: 5,
-  },
-  selectionText: {
-    marginTop: 15,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});
 
 export default BuyInSelector;

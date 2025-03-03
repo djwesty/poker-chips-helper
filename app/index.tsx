@@ -1,14 +1,6 @@
-import React, { useState, useEffect } from "react";
-import {
-  ScrollView,
-  Text,
-  Alert,
-  Button,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import React, { useState, useEffect, useContext, useMemo } from "react";
+import { ScrollView, Alert } from "react-native";
+import Button from "@/containers/Button";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
 import ChipsSelector from "@/components/ChipsSelector";
@@ -20,14 +12,9 @@ import {
   savePersistentState,
   loadPersistentState,
 } from "@/components/PersistentState";
-
-export enum COLORS {
-  "white",
-  "red",
-  "green",
-  "blue",
-  "black",
-}
+import styles from "@/styles/styles";
+import Section from "@/containers/Section";
+import AppContext from "@/util/context";
 
 const IndexScreen: React.FC = () => {
   const [playerCount, setPlayerCount] = useState(2);
@@ -35,7 +22,8 @@ const IndexScreen: React.FC = () => {
   const [numberOfChips, setNumberOfChips] = useState<number>(5);
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("$");
-  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const context = useContext(AppContext);
+  const isSettingsVisible = useMemo(() => context.showSettings, [context]);
 
   useEffect(() => {
     const loadPersistentData = async () => {
@@ -104,96 +92,85 @@ const IndexScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1 }}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => setIsSettingsVisible(!isSettingsVisible)}
-        >
-          <Text>
-            <FontAwesome name="cog" size={30} color="black" />
-          </Text>
-        </TouchableOpacity>
-      </View>
-
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={styles.scrollViewContent}
+    >
       {isSettingsVisible && (
-        <View style={styles.settingsContainer}>
+        <Section title={"Select Currency"} iconName={"attach-money"}>
           <CurrencySelector
             selectedCurrency={selectedCurrency}
             setSelectedCurrency={setSelectedCurrency}
           />
-        </View>
+        </Section>
       )}
 
-      <PlayerSelector
-        playerCount={playerCount}
-        setPlayerCount={setPlayerCount}
-      />
-
-      <BuyInSelector
-        selectedCurrency={selectedCurrency}
-        setBuyInAmount={setBuyInAmount}
-      />
-
-      <ChipDetection
-        updateChipCount={(chipData) => {
-          const chipCountArray = Object.values(chipData);
-          setTotalChipsCount(chipCountArray);
-        }}
-      />
-
-      <ChipsSelector
-        totalChipsCount={totalChipsCount}
-        setTotalChipsCount={setTotalChipsCount}
-        numberOfChips={numberOfChips}
-        setNumberOfChips={setNumberOfChips}
-      />
-
-      <ChipDistributionSummary
-        playerCount={playerCount}
-        buyInAmount={buyInAmount}
-        totalChipsCount={totalChipsCount}
-        selectedCurrency={selectedCurrency}
-      />
-
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Save to Slot 1"
-          onPress={() => handleSave("SLOT1")}
-          disabled={buyInAmount === null}
+      <Section
+        title={"Select the number of players"}
+        iconName={"people"}
+        orientation="row"
+      >
+        <PlayerSelector
+          playerCount={playerCount}
+          setPlayerCount={setPlayerCount}
         />
-        <Button
-          title="Save to Slot 2"
-          onPress={() => handleSave("SLOT2")}
-          disabled={buyInAmount === null}
+      </Section>
+
+      <Section title={"Select buy-in amount"} iconName={"monetization-on"}>
+        <BuyInSelector
+          selectedCurrency={selectedCurrency}
+          setBuyInAmount={setBuyInAmount}
         />
-        <Button title="Load from Slot 1" onPress={() => handleLoad("SLOT1")} />
-        <Button title="Load from Slot 2" onPress={() => handleLoad("SLOT2")} />
-      </View>
+      </Section>
+
+      <Section title={"Automatic Chip Detection"} iconName={"camera-alt"}>
+        <ChipDetection
+          updateChipCount={(chipData) => {
+            const chipCountArray = Object.values(chipData);
+            setTotalChipsCount(chipCountArray);
+          }}
+        />
+      </Section>
+
+      <Section title={"Manual Chip Adjustment"} iconName={"account-balance"}>
+        <ChipsSelector
+          totalChipsCount={totalChipsCount}
+          setTotalChipsCount={setTotalChipsCount}
+          numberOfChips={numberOfChips}
+          setNumberOfChips={setNumberOfChips}
+        />
+      </Section>
+
+      <Section
+        title={"Distribution & Denomination"}
+        iconName={"currency-exchange"}
+      >
+        <ChipDistributionSummary
+          playerCount={playerCount}
+          buyInAmount={buyInAmount}
+          totalChipsCount={totalChipsCount}
+          selectedCurrency={selectedCurrency}
+        />
+      </Section>
+
+      <Section title={"Save + Load"} iconName={"save"} orientation="row">
+        <>
+          <Button
+            title={"Save\nSlot 1"}
+            onPress={() => handleSave("SLOT1")}
+            disabled={buyInAmount === null}
+          />
+          <Button
+            title={"Save\nSlot 2"}
+            onPress={() => handleSave("SLOT2")}
+            disabled={buyInAmount === null}
+          />
+          <Button title={"Load\nSlot 1"} onPress={() => handleLoad("SLOT1")} />
+          <Button title={"Load\nSlot 2"} onPress={() => handleLoad("SLOT2")} />
+        </>
+      </Section>
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  settingsContainer: {
-    marginBottom: 20,
-    padding: 10,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 5,
-  },
-  settingTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  buttonContainer: {
-    marginTop: 20,
-  },
-});
 
 export default IndexScreen;

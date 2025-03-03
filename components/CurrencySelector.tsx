@@ -1,6 +1,6 @@
 import React from "react";
-import { View, StyleSheet, Text } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import styles from "@/styles/styles";
 
 interface CurrencySelectorProps {
   selectedCurrency: string;
@@ -12,8 +12,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
   setSelectedCurrency,
 }) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Select Currency:</Text>
+    <>
       <Picker
         selectedValue={selectedCurrency}
         onValueChange={(itemValue) => setSelectedCurrency(itemValue)}
@@ -25,22 +24,8 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         <Picker.Item label="Pound (£)" value="£" />
         <Picker.Item label="INR (₹)" value="₹" />
       </Picker>
-    </View>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  picker: {
-    height: 50,
-    width: 150,
-  },
-});
 
 export default CurrencySelector;

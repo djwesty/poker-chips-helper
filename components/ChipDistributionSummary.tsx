@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ColorValue } from "react-native";
+import styles from "@/styles/styles";
 
 interface ChipDistributionSummaryProps {
   playerCount: number;
@@ -15,7 +16,7 @@ const ChipDistributionSummary = ({
   buyInAmount,
   totalChipsCount,
   colors = ["white", "red", "green", "blue", "black"],
-  selectedCurrency,
+  selectedCurrency = "$",
 }: ChipDistributionSummaryProps) => {
   const validDenominations: validDenomination[] = [
     0.05, 0.1, 0.25, 0.5, 1, 2, 2.5, 5, 10, 20, 50, 100,
@@ -153,84 +154,32 @@ const ChipDistributionSummary = ({
   }, [totalChipsCount, maxDenomination, buyInAmount, playerCount]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Distribution & Denomination</Text>
-      <Text style={styles.subTitle}>
-        {selectedCurrency} {potValue} Pot
-      </Text>
-      <View style={styles.chipContainer}>
+    <>
+      <View style={styles.container}>
         {totalChipsCount.map((_, index) => (
-          <View style={styles.chipRow} key={index}>
+          <View style={{ flexDirection: "row" }} key={index}>
             <Text
               style={{
-                ...styles.chipText,
+                ...styles.h2,
                 color: colors[index],
-                ...(colors[index] === "white" && styles.whiteShadow),
+                ...(colors[index] === "white" && styles.shadow),
               }}
             >
-              {distributions[index]} chips:
-            </Text>
-            <Text
-              style={{
-                ...styles.chipText,
-                color: colors[index],
-                ...(colors[index] === "white" && styles.whiteShadow),
-              }}
-            >
-              {selectedCurrency} {denominations[index]} each
+              {`${distributions[index]} chips: ${selectedCurrency}${denominations[index]} each`}
             </Text>
           </View>
         ))}
       </View>
-      <Text style={styles.chipText}>
-        Total Value: {selectedCurrency} {totalValue}
-      </Text>
-    </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <Text style={styles.p}>
+          Total Value: {selectedCurrency} {totalValue}
+        </Text>
+        <Text style={styles.p}>
+          {selectedCurrency} {potValue} Pot
+        </Text>
+      </View>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 20,
-    padding: 15,
-    borderRadius: 10,
-    display: "flex",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  subTitle: {
-    fontSize: 16,
-    color: "gray",
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  chipContainer: {
-    marginTop: 10,
-  },
-  chipRow: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-  },
-  chipText: {
-    fontSize: 20,
-    marginVertical: 2,
-    fontWeight: "bold",
-  },
-  whiteShadow: {
-    textShadowColor: "black",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
-  },
-  noDataText: {
-    fontSize: 16,
-    color: "gray",
-  },
-});
 
 export default ChipDistributionSummary;

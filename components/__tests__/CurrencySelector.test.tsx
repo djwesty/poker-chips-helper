@@ -13,7 +13,6 @@ describe("CurrencySelector Component", () => {
       />
     );
 
-    expect(getByText("Select Currency:")).toBeTruthy(); // Check label exists
     expect(getByTestId("currency-picker")).toBeTruthy(); // Check Picker exists
   });
 
