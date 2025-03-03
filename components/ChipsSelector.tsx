@@ -4,10 +4,14 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Button,
   ColorValue,
   Modal,
+  TouchableOpacity,
 } from "react-native";
+import Button from "@/containers/Button";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import styles from "@/styles/styles";
+
 const colors: ColorValue[] = ["white", "red", "green", "blue", "black"];
 
 const ChipInputModal = ({
@@ -31,16 +35,27 @@ const ChipInputModal = ({
     setValue(totalChipsCount[colorIdx]);
   }, [colorIdx]);
 
+  const shadow = useMemo(() => color === "white", [color]);
+
   return (
     <Modal
       visible={showModal[0]}
       onRequestClose={() => setShowModal([false, color])}
+      style={styles.modal}
+      presentationStyle="fullScreen"
+      animationType="slide"
     >
       {value !== undefined && (
         <>
-          <Text>Number of {showModal[1]?.toString()} chips</Text>
+          <Text style={styles.h2}>
+            Number of {showModal[1]?.toString()} chips
+          </Text>
           <TextInput
-            style={{ color: showModal[1] }}
+            style={{
+              ...styles.input,
+              color: showModal[1],
+              ...(shadow ? styles.shadow : {}),
+            }}
             keyboardType="numeric"
             value={value.toString()}
             onChangeText={(v) => {
@@ -71,14 +86,25 @@ const Chip = ({
   count: number;
   setShowModal: React.Dispatch<React.SetStateAction<[boolean, ColorValue]>>;
 }) => {
+  const shadow = useMemo(() => color === "white", [color]);
   return (
-    <Text
-      key={color.toString()}
+    <TouchableOpacity
       onPress={() => setShowModal([true, color])}
-      style={[{ color: color }, styles.chip]}
+      style={{ alignItems: "center" }}
     >
-      {count}
-    </Text>
+      <MaterialCommunityIcons
+        name="poker-chip"
+        size={24}
+        color={color}
+        style={shadow ? styles.shadow : {}}
+      />
+      <Text
+        key={color.toString()}
+        style={[{ color: color }, styles.h2, shadow ? styles.shadow : {}]}
+      >
+        {count}
+      </Text>
+    </TouchableOpacity>
   );
 };
 
@@ -134,34 +160,31 @@ const ChipsSelector = ({
 
   return (
     <>
-      <View style={styles.container}>
-        <Text style={styles.title}>Chips you have</Text>
-        <View style={styles.chipContainer}>
-          {colorsUsed.map((color) => (
-            <Chip
-              key={color.toString()}
-              color={color}
-              count={totalChipsCount[colors.indexOf(color)] ?? 0}
-              setShowModal={setShowModal}
-            />
-          ))}
-        </View>
-        <View style={styles.buttonContainer}>
-          <Button
-            title="-"
-            onPress={() => {
-              setNumberOfChips(Math.max(1, numberOfChips - 1));
-            }}
-            disabled={numberOfChips == 1}
+      <View style={[styles.container, { flexDirection: "row" }]}>
+        {colorsUsed.map((color) => (
+          <Chip
+            key={color.toString()}
+            color={color}
+            count={totalChipsCount[colors.indexOf(color)] ?? 0}
+            setShowModal={setShowModal}
           />
-          <Button
-            title="+"
-            onPress={() => {
-              setNumberOfChips(Math.min(5, numberOfChips + 1));
-            }}
-            disabled={numberOfChips == 5}
-          />
-        </View>
+        ))}
+      </View>
+      <View style={[styles.container, { flexDirection: "row" }]}>
+        <Button
+          title="-"
+          onPress={() => {
+            setNumberOfChips(Math.max(1, numberOfChips - 1));
+          }}
+          disabled={numberOfChips == 1}
+        />
+        <Button
+          title="+"
+          onPress={() => {
+            setNumberOfChips(Math.min(5, numberOfChips + 1));
+          }}
+          disabled={numberOfChips == 5}
+        />
       </View>
 
       <ChipInputModal
@@ -174,7 +197,7 @@ const ChipsSelector = ({
   );
 };
 
-const styles = StyleSheet.create({
+const styles1 = StyleSheet.create({
   container: {
     marginBottom: 20,
     gap: 10,

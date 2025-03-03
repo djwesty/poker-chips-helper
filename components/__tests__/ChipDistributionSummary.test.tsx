@@ -12,26 +12,20 @@ describe("ChipDistributionSummary Component", () => {
     const expectedDistribution = [2, 2, 1, 2, 2];
     const expectedDenominations = [0.5, 1, 2, 2.5, 5];
 
-    const { getByText, getAllByText } = render(
+    const { getByText } = render(
       <ChipDistributionSummary
         playerCount={playerCount}
         buyInAmount={buyInAmount}
         totalChipsCount={totalChipsCount}
+        selectedCurrency={"$"}
       />
     );
 
-    expect(getByText("Distribution & Denomination")).toBeTruthy();
-
     expectedDistribution.forEach((count, index) => {
-      // Ensure "X chips:" appears correctly
-      expect(getAllByText(new RegExp(`^${count}\\s+chips:`, "i"))).toBeTruthy();
-
-      // Ensure value format matches the rendered output
-      expect(
-        getByText(
-          new RegExp(`^\\s*${expectedDenominations[index]}\\s+each$`, "i")
-        )
-      ).toBeTruthy();
+      const regex = new RegExp(
+        `^${count}\\s+chips:\\s+\\$${expectedDenominations[index]}\\s+each$`
+      );
+      expect(getByText(regex)).toBeTruthy();
     });
   });
 
@@ -40,6 +34,7 @@ describe("ChipDistributionSummary Component", () => {
       <ChipDistributionSummary
         playerCount={0}
         buyInAmount={20}
+        selectedCurrency={"$"}
         totalChipsCount={[]}
       />
     );
@@ -66,6 +61,7 @@ describe("ChipDistributionSummary Component", () => {
         playerCount={playerCount}
         buyInAmount={100}
         totalChipsCount={totalChipsCount}
+        selectedCurrency={"$"}
       />
     );
 

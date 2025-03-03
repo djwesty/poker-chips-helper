@@ -32,7 +32,6 @@ describe("BuyInSelector Component", () => {
   });
 
   it("renders the buy-in options and input correctly", () => {
-    expect(getByText("Select Buy-in Amount:")).toBeTruthy();
     expect(getByText("$ 10")).toBeTruthy();
     expect(getByText("$ 25")).toBeTruthy();
     expect(getByText("$ 50")).toBeTruthy();

@@ -10,6 +10,13 @@ import ChipsSelector from "@/components/ChipsSelector";
 
 const TOTAL_CHIPS_COUNT = [100, 80, 60, 40, 20];
 
+jest.mock("@expo/vector-icons", () => {
+  const { Text } = require("react-native");
+  return {
+    MaterialCommunityIcons: () => <Text>TestIcon</Text>,
+  };
+});
+
 const mocktTotalChipsCount = jest.fn();
 const mockSetNumberOfChips = jest.fn();
 

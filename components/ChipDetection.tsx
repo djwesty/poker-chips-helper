@@ -1,15 +1,14 @@
 import React, { useState } from "react";
-import {
-  View,
-  Button,
-  Image,
-  ActivityIndicator,
-  Text,
-  ScrollView,
-} from "react-native";
+import { Image, ActivityIndicator, Text, View } from "react-native";
+import Button from "@/containers/Button";
+
 import * as ImagePicker from "expo-image-picker";
 
-const ChipDetection = ({ updateChipCount }) => {
+const ChipDetection = ({
+  updateChipCount,
+}: {
+  updateChipCount: () => void;
+}) => {
   const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -113,9 +112,11 @@ const ChipDetection = ({ updateChipCount }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20, alignItems: "center" }}>
-      <Button title="Pick an Image" onPress={pickImage} />
-      <Button title="Take a Photo" onPress={takePhoto} />
+    <>
+      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <Button title="Pick an Image" onPress={pickImage} />
+        <Button title="Take a Photo" onPress={takePhoto} />
+      </View>
       {imageUri && (
         <Image
           source={{ uri: imageUri }}
@@ -124,7 +125,7 @@ const ChipDetection = ({ updateChipCount }) => {
       )}
       {loading && <ActivityIndicator size="large" color="blue" />}
       {error && <Text style={{ color: "red", marginTop: 10 }}>{error}</Text>}
-    </ScrollView>
+    </>
   );
 };
 

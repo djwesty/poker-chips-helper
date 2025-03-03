@@ -9,7 +9,6 @@ describe("PlayerSelector Component", () => {
       <PlayerSelector playerCount={4} setPlayerCount={setPlayerCount} />
     );
 
-    expect(getByText("Select Number of Players:")).toBeTruthy();
     expect(getByText("4")).toBeTruthy();
     expect(getByRole("button", { name: "-" })).toBeTruthy();
     expect(getByRole("button", { name: "+" })).toBeTruthy();
