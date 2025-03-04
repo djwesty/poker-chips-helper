@@ -20,10 +20,10 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         style={styles.picker}
         testID="currency-picker" // ✅ Add testID here
       >
-        <Picker.Item label={i18n.t("USD")} value="$" />
-        <Picker.Item label={i18n.t("Euro")} value="€" />
-        <Picker.Item label={i18n.t("Pound")} value="£" />
-        <Picker.Item label={i18n.t("INR")} value="₹" />
+        <Picker.Item label={i18n.t("usd")} value="$" />
+        <Picker.Item label={i18n.t("euro")} value="€" />
+        <Picker.Item label={i18n.t("pound")} value="£" />
+        <Picker.Item label={i18n.t("inr")} value="₹" />
       </Picker>
     </>
   );
