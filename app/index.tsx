@@ -15,6 +15,8 @@ import {
 import styles from "@/styles/styles";
 import Section from "@/containers/Section";
 import AppContext from "@/util/context";
+import { Picker } from "@react-native-picker/picker";
+import i18n from "@/i18n/i18n";
 
 const IndexScreen: React.FC = () => {
   const [playerCount, setPlayerCount] = useState(2);
@@ -22,6 +24,7 @@ const IndexScreen: React.FC = () => {
   const [numberOfChips, setNumberOfChips] = useState<number>(5);
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("$");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
   const context = useContext(AppContext);
   const isSettingsVisible = useMemo(() => context.showSettings, [context]);
 
@@ -49,7 +52,7 @@ const IndexScreen: React.FC = () => {
 
   const handleSave = async (slot: "SLOT1" | "SLOT2") => {
     if (buyInAmount === null) {
-      Alert.alert("Error", "Please select a valid buy-in amount");
+      Alert.alert(i18n.t("error"), i18n.t("please_select_valid_buyin"));
       return;
     }
     const state = {
@@ -63,10 +66,10 @@ const IndexScreen: React.FC = () => {
       await saveState(slot, state);
       await savePersistentState(state);
       console.log(`Game state saved to ${slot}:`, state);
-      Alert.alert("Success", `State saved to ${slot}`);
+      Alert.alert(i18n.t("success"), i18n.t("state_saved", { slot })); // Fixed interpolation
     } catch (error) {
       console.error("Error saving state:", error);
-      Alert.alert("Error", "Failed to save state.");
+      Alert.alert(i18n.t("error"), i18n.t("failed_to_save_state"));
     }
   };
 
@@ -81,14 +84,19 @@ const IndexScreen: React.FC = () => {
         setSelectedCurrency(loadedState.selectedCurrency || "$");
         await savePersistentState(loadedState);
         console.log(`Game state loaded from ${slot}:`, loadedState);
-        Alert.alert("Success", `State loaded from ${slot}`);
+        Alert.alert(i18n.t("success"), i18n.t("state_loaded_from", { slot })); // Fixed interpolation
       } else {
-        Alert.alert("Info", "No saved state found.");
+        Alert.alert(i18n.t("info"), i18n.t("no_saved_state_found"));
       }
     } catch (error) {
       console.error("Error loading state:", error);
-      Alert.alert("Error", "Failed to load state.");
+      Alert.alert(i18n.t("error"), i18n.t("failed_to_load_state"));
     }
+  };
+
+  const handleLanguageChange = (language: string) => {
+    setSelectedLanguage(language);
+    i18n.changeLanguage(language);
   };
 
   return (
@@ -97,7 +105,28 @@ const IndexScreen: React.FC = () => {
       contentContainerStyle={styles.scrollViewContent}
     >
       {isSettingsVisible && (
-        <Section title={"Select Currency"} iconName={"attach-money"}>
+        <Section
+          title={i18n.t("select_language")}
+          iconName={"language"}
+          orientation="row"
+        >
+          <Picker
+            selectedValue={selectedLanguage}
+            onValueChange={handleLanguageChange}
+            style={styles.picker}
+          >
+            <Picker.Item label={i18n.t("english")} value="en" />
+            <Picker.Item label={i18n.t("spanish")} value="es" />
+          </Picker>
+        </Section>
+      )}
+
+      {isSettingsVisible && (
+        <Section
+          title={i18n.t("select_currency")}
+          iconName={"attach-money"}
+          orientation="row"
+        >
           <CurrencySelector
             selectedCurrency={selectedCurrency}
             setSelectedCurrency={setSelectedCurrency}
@@ -106,7 +135,7 @@ const IndexScreen: React.FC = () => {
       )}
 
       <Section
-        title={"Select the number of players"}
+        title={i18n.t("select_number_of_players")}
         iconName={"people"}
         orientation="row"
       >
@@ -116,14 +145,20 @@ const IndexScreen: React.FC = () => {
         />
       </Section>
 
-      <Section title={"Select buy-in amount"} iconName={"monetization-on"}>
+      <Section
+        title={i18n.t("select_buyin_amount")}
+        iconName={"monetization-on"}
+      >
         <BuyInSelector
           selectedCurrency={selectedCurrency}
           setBuyInAmount={setBuyInAmount}
         />
       </Section>
 
-      <Section title={"Automatic Chip Detection"} iconName={"camera-alt"}>
+      <Section
+        title={i18n.t("automatic_chip_detection")}
+        iconName={"camera-alt"}
+      >
         <ChipDetection
           updateChipCount={(chipData) => {
             const chipCountArray = Object.values(chipData);
@@ -132,7 +167,10 @@ const IndexScreen: React.FC = () => {
         />
       </Section>
 
-      <Section title={"Manual Chip Adjustment"} iconName={"account-balance"}>
+      <Section
+        title={i18n.t("manual_chip_adjustment")}
+        iconName={"account-balance"}
+      >
         <ChipsSelector
           totalChipsCount={totalChipsCount}
           setTotalChipsCount={setTotalChipsCount}
@@ -142,7 +180,7 @@ const IndexScreen: React.FC = () => {
       </Section>
 
       <Section
-        title={"Distribution & Denomination"}
+        title={i18n.t("distribution_and_denomination")}
         iconName={"currency-exchange"}
       >
         <ChipDistributionSummary
@@ -153,20 +191,30 @@ const IndexScreen: React.FC = () => {
         />
       </Section>
 
-      <Section title={"Save + Load"} iconName={"save"} orientation="row">
+      <Section
+        title={i18n.t("save_and_load")}
+        iconName={"save"}
+        orientation="row"
+      >
         <>
           <Button
-            title={"Save\nSlot 1"}
+            title={i18n.t("save_slot_1")}
             onPress={() => handleSave("SLOT1")}
             disabled={buyInAmount === null}
           />
           <Button
-            title={"Save\nSlot 2"}
+            title={i18n.t("save_slot_2")}
             onPress={() => handleSave("SLOT2")}
             disabled={buyInAmount === null}
           />
-          <Button title={"Load\nSlot 1"} onPress={() => handleLoad("SLOT1")} />
-          <Button title={"Load\nSlot 2"} onPress={() => handleLoad("SLOT2")} />
+          <Button
+            title={i18n.t("load_slot_1")}
+            onPress={() => handleLoad("SLOT1")}
+          />
+          <Button
+            title={i18n.t("load_slot_2")}
+            onPress={() => handleLoad("SLOT2")}
+          />
         </>
       </Section>
     </ScrollView>

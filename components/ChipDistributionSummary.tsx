@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ColorValue } from "react-native";
+import i18n from "@/i18n/i18n";
 import styles from "@/styles/styles";
 
 interface ChipDistributionSummaryProps {
@@ -8,7 +9,7 @@ interface ChipDistributionSummaryProps {
   buyInAmount: number;
   totalChipsCount: number[];
   colors?: ColorValue[];
-  selectedCurrency: string; // Add the selectedCurrency as a prop here
+  selectedCurrency: string;
 }
 
 const ChipDistributionSummary = ({
@@ -165,17 +166,17 @@ const ChipDistributionSummary = ({
                 ...(colors[index] === "white" && styles.shadow),
               }}
             >
-              {`${distributions[index]} chips: ${selectedCurrency}${denominations[index]} each`}
+              {`${distributions[index]} ${i18n.t("chips")}: ${selectedCurrency}${denominations[index]} ${i18n.t("each")}`}
             </Text>
           </View>
         ))}
       </View>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={styles.p}>
-          Total Value: {selectedCurrency} {totalValue}
+          {i18n.t("total_value")}: {selectedCurrency} {totalValue}
         </Text>
         <Text style={styles.p}>
-          {selectedCurrency} {potValue} Pot
+          {selectedCurrency} {potValue} {i18n.t("pot")}
         </Text>
       </View>
     </>

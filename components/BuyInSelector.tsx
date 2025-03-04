@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { View, Text, TextInput } from "react-native";
 import styles, { COLORS } from "@/styles/styles";
 import Button from "@/containers/Button";
+import i18n from "@/i18n/i18n";
 
 interface BuyInSelectorProps {
   setBuyInAmount: React.Dispatch<React.SetStateAction<number>>;
-  selectedCurrency: string; // Accept selectedCurrency as a prop
+  selectedCurrency: string;
 }
 
 const defaultBuyInOptions = [10, 25, 50];
@@ -45,22 +46,25 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
             color={buyInAmount === amount ? COLORS.PRIMARY : COLORS.SECONDARY}
             onPress={() => handleBuyInSelection(amount)}
             title={`${selectedCurrency} ${amount}`}
-          ></Button>
+          />
         ))}
       </View>
 
-      <Text style={styles.p}>Or enter a custom amount:</Text>
+      <Text style={styles.p}>{i18n.t("custom_buy_in")}</Text>
+
       <TextInput
         style={styles.input}
         value={customAmount}
         onChangeText={handleCustomAmountChange}
-        placeholder="Enter custom buy-in"
+        placeholder={i18n.t("enter_custom_buy_in")}
         keyboardType="numeric"
       />
 
       <Text style={styles.h2}>
-        Selected Buy-in:{" "}
-        {buyInAmount !== null ? `${selectedCurrency} ${buyInAmount}` : "None"}
+        {`${i18n.t("selected_buy_in")}: `}
+        {buyInAmount !== null
+          ? `${selectedCurrency} ${buyInAmount}`
+          : i18n.t("none")}
       </Text>
     </>
   );

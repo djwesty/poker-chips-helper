@@ -5,6 +5,7 @@ import {
   screen,
   waitForElementToBeRemoved,
   fireEvent,
+  act,
 } from "@testing-library/react-native";
 import ChipsSelector from "@/components/ChipsSelector";
 
@@ -55,7 +56,8 @@ describe("tests for ChipsSelector", () => {
     const green = screen.getByText("60");
     expect(green).toHaveStyle({ color: "green" });
 
-    userEvent.press(green);
+    fireEvent.press(green);
+
     const modalLabel = await screen.findByText(/number of green chips/i);
     expect(modalLabel).toBeDefined();
 

@@ -6,9 +6,7 @@ describe("ChipDistributionSummary Component", () => {
   test("renders correctly with valid data", () => {
     const playerCount = 4;
     const totalChipsCount = [100, 80, 60, 40, 20];
-    const colors = ["WHITE", "RED", "GREEN", "BLUE", "BLACK"];
     const buyInAmount = 20;
-
     const expectedDistribution = [2, 2, 1, 2, 2];
     const expectedDenominations = [0.5, 1, 2, 2.5, 5];
 
@@ -23,7 +21,8 @@ describe("ChipDistributionSummary Component", () => {
 
     expectedDistribution.forEach((count, index) => {
       const regex = new RegExp(
-        `^${count}\\s+chips:\\s+\\$${expectedDenominations[index]}\\s+each$`
+        `^${count}\\s+chips:\\s+\\$${expectedDenominations[index]}\\s+Each$`,
+        "i"
       );
       expect(getByText(regex)).toBeTruthy();
     });
@@ -67,7 +66,7 @@ describe("ChipDistributionSummary Component", () => {
 
     expect(getByText("Distribution & Denomination")).toBeTruthy();
 
-    expectedDistribution.forEach((count, index) => {
+    expectedDistribution.forEach((count) => {
       expect(getByText(new RegExp(`^${count}\\s+chips:`, "i"))).toBeTruthy();
     });
   });
