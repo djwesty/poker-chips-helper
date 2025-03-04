@@ -42,8 +42,9 @@ describe("ChipDetection", () => {
     const { getByText } = render(
       <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
-    expect(getByText("Pick an Image")).toBeTruthy();
-    expect(getByText("Take a Photo")).toBeTruthy();
+
+    expect(getByText(/pick an image/i)).toBeTruthy();
+    expect(getByText(/take a photo/i)).toBeTruthy();
   });
 
   it("picks an image from the library", async () => {
@@ -55,7 +56,7 @@ describe("ChipDetection", () => {
     const { getByText } = render(
       <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
-    fireEvent.press(getByText("Pick an Image"));
+    fireEvent.press(getByText(/pick an image/i));
 
     await waitFor(() => expect(mockUpdateChipCount).toHaveBeenCalled());
   });
@@ -72,7 +73,7 @@ describe("ChipDetection", () => {
     const { getByText } = render(
       <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
-    fireEvent.press(getByText("Take a Photo"));
+    fireEvent.press(getByText(/take a photo/i));
 
     await waitFor(() =>
       expect(mockUpdateChipCount).toHaveBeenCalledWith({ red: 5, green: 3 })
@@ -87,11 +88,11 @@ describe("ChipDetection", () => {
     const { getByText } = render(
       <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
-    fireEvent.press(getByText("Take a Photo"));
+    fireEvent.press(getByText(/take a photo/i));
 
     await waitFor(() =>
       expect(
-        getByText("Camera permission is required to take a photo.")
+        getByText(/camera permission is required to take a photo/i)
       ).toBeTruthy()
     );
   });
@@ -112,10 +113,10 @@ describe("ChipDetection", () => {
     const { getByText } = render(
       <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
-    fireEvent.press(getByText("Pick an Image"));
+    fireEvent.press(getByText(/pick an image/i));
 
     await waitFor(() =>
-      expect(getByText("Failed to analyze the image.")).toBeTruthy()
+      expect(getByText(/failed to analyze the image/i)).toBeTruthy()
     );
   });
 
@@ -144,7 +145,7 @@ describe("ChipDetection", () => {
     const { getByText } = render(
       <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
-    fireEvent.press(getByText("Pick an Image"));
+    fireEvent.press(getByText(/pick an image/i));
 
     await waitFor(() =>
       expect(mockUpdateChipCount).toHaveBeenCalledWith({

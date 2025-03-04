@@ -11,6 +11,7 @@ import {
 import Button from "@/containers/Button";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import styles from "@/styles/styles";
+import i18n from "@/i18n/i18n";
 
 const colors: ColorValue[] = ["white", "red", "green", "blue", "black"];
 
@@ -48,7 +49,9 @@ const ChipInputModal = ({
       {value !== undefined && (
         <>
           <Text style={styles.h2}>
-            Number of {showModal[1]?.toString()} chips
+            {i18n.t("number_of_chips", {
+              color: showModal[1]?.toString(),
+            })}{" "}
           </Text>
           <TextInput
             style={{
@@ -67,7 +70,7 @@ const ChipInputModal = ({
         </>
       )}
       <Button
-        title="Accept"
+        title={i18n.t("accept")}
         onPress={() => {
           update(showModal[1], Number.isNaN(value) ? 0 : value);
           setShowModal([false, color]);
@@ -128,7 +131,7 @@ const ChipsSelector = ({
     [numberOfChips]
   );
 
-  // Callback for ChipInputModal to update the chips in the parents state.
+  // Callback for ChipInputModal to update the chips in the parent's state.
   const update = useCallback(
     (color: ColorValue, count: number) => {
       const newTotalChipsCount = totalChipsCount.slice();
@@ -227,4 +230,5 @@ const styles1 = StyleSheet.create({
   },
   button: {},
 });
+
 export default ChipsSelector;

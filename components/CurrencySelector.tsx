@@ -1,6 +1,7 @@
 import React from "react";
 import { Picker } from "@react-native-picker/picker";
 import styles from "@/styles/styles";
+import i18n from "@/i18n/i18n";
 
 interface CurrencySelectorProps {
   selectedCurrency: string;
@@ -19,10 +20,10 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
         style={styles.picker}
         testID="currency-picker" // ✅ Add testID here
       >
-        <Picker.Item label="USD ($)" value="$" />
-        <Picker.Item label="Euro (€)" value="€" />
-        <Picker.Item label="Pound (£)" value="£" />
-        <Picker.Item label="INR (₹)" value="₹" />
+        <Picker.Item label={i18n.t("usd")} value="$" />
+        <Picker.Item label={i18n.t("euro")} value="€" />
+        <Picker.Item label={i18n.t("pound")} value="£" />
+        <Picker.Item label={i18n.t("inr")} value="₹" />
       </Picker>
     </>
   );
