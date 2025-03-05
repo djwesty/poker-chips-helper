@@ -17,11 +17,10 @@ jest.mock("expo-image-picker", () => ({
 describe("ChipDetection", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
+    jest.spyOn(global, "fetch").mockImplementation(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
             choices: [
               {
                 message: {
@@ -34,8 +33,14 @@ describe("ChipDetection", () => {
               },
             ],
           }),
-      })
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        )
+      )
     );
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks(); // Reset all mocks to prevent test contamination
   });
 
   it("renders correctly", () => {
@@ -48,7 +53,7 @@ describe("ChipDetection", () => {
   });
 
   it("picks an image from the library", async () => {
-    ImagePicker.launchImageLibraryAsync.mockResolvedValueOnce({
+    (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValueOnce({
       canceled: false,
       assets: [{ uri: "test-uri", base64: "test-base64" }],
     });
@@ -62,10 +67,12 @@ describe("ChipDetection", () => {
   });
 
   it("takes a photo with the camera", async () => {
-    ImagePicker.requestCameraPermissionsAsync.mockResolvedValueOnce({
+    (
+      ImagePicker.requestCameraPermissionsAsync as jest.Mock
+    ).mockResolvedValueOnce({
       granted: true,
     });
-    ImagePicker.launchCameraAsync.mockResolvedValueOnce({
+    (ImagePicker.launchCameraAsync as jest.Mock).mockResolvedValueOnce({
       canceled: false,
       assets: [{ uri: "test-camera-uri", base64: "test-camera-base64" }],
     });
@@ -81,7 +88,9 @@ describe("ChipDetection", () => {
   });
 
   it("handles camera permission denied", async () => {
-    ImagePicker.requestCameraPermissionsAsync.mockResolvedValueOnce({
+    (
+      ImagePicker.requestCameraPermissionsAsync as jest.Mock
+    ).mockResolvedValueOnce({
       granted: false,
     });
 
@@ -98,16 +107,18 @@ describe("ChipDetection", () => {
   });
 
   it("displays error message on image processing failure", async () => {
-    ImagePicker.launchImageLibraryAsync.mockResolvedValueOnce({
+    (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValueOnce({
       canceled: false,
       assets: [{ uri: "test-uri", base64: "test-base64" }],
     });
 
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: false,
-        json: () => Promise.resolve({ choices: [] }),
-      })
+    jest.spyOn(global, "fetch").mockImplementationOnce(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ choices: [] }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        })
+      )
     );
 
     const { getByText } = render(
@@ -121,16 +132,15 @@ describe("ChipDetection", () => {
   });
 
   it("handles valid API response correctly", async () => {
-    ImagePicker.launchImageLibraryAsync.mockResolvedValueOnce({
+    (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValueOnce({
       canceled: false,
       assets: [{ uri: "test-uri", base64: "test-base64" }],
     });
 
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
+    jest.spyOn(global, "fetch").mockImplementationOnce(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
             choices: [
               {
                 message: {
@@ -139,7 +149,9 @@ describe("ChipDetection", () => {
               },
             ],
           }),
-      })
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        )
+      )
     );
 
     const { getByText } = render(
