@@ -78,7 +78,7 @@ const IndexScreen: React.FC = () => {
       const loadedState = await loadState(slot);
       if (loadedState) {
         setPlayerCount(loadedState.playerCount);
-        setBuyInAmount(loadedState.buyInAmount);
+        setBuyInAmount(loadedState.buyInAmount ?? 20);
         setNumberOfChips(loadedState.numberOfChips);
         setTotalChipsCount(loadedState.totalChipsCount);
         setSelectedCurrency(loadedState.selectedCurrency || "$");
