@@ -29,12 +29,12 @@ const ChipInputModal = ({
   const color: ColorValue = useMemo(() => showModal[1], [showModal]);
   const colorIdx = useMemo(() => colors.indexOf(color), [color]);
 
-  const [value, setValue] = useState<number | undefined>(); // value may be undefined initially
+  const [value, setValue] = useState<number | undefined>();
 
-  // Reset the color value when the specific color this modal is for, changes. The same modal is shared/reused in all cases.
+  // Reset the color value when the specific color this modal is for changes
   useEffect(() => {
     setValue(totalChipsCount[colorIdx]);
-  }, [colorIdx]);
+  }, [colorIdx, totalChipsCount]);
 
   const shadow = useMemo(() => color === "white", [color]);
 
@@ -126,8 +126,9 @@ const ChipsSelector = ({
     false,
     colors[0],
   ]);
+
   const colorsUsed = useMemo(
-    () => colors.filter((v, i) => i < numberOfChips),
+    () => colors.slice(0, numberOfChips), // Only show as many colors as the `numberOfChips`
     [numberOfChips]
   );
 
@@ -139,14 +140,13 @@ const ChipsSelector = ({
       newTotalChipsCount[colorIndex] = count;
       setTotalChipsCount(newTotalChipsCount);
     },
-    [numberOfChips, totalChipsCount, setTotalChipsCount]
+    [totalChipsCount, setTotalChipsCount]
   );
 
-  // When the number of chips changes (dec or inc), update the array being careful to add in sensible default values where they belong
+  // Handling number of chips to make sure the array updates accordingly
   useEffect(() => {
     if (numberOfChips !== totalChipsCount.length) {
       let newTotalChipsCount = totalChipsCount.slice();
-
       if (numberOfChips < totalChipsCount.length) {
         newTotalChipsCount = newTotalChipsCount.slice(0, numberOfChips);
       } else if (numberOfChips > totalChipsCount.length) {
@@ -171,14 +171,17 @@ const ChipsSelector = ({
         disabled={numberOfChips == 1}
       />
       <View style={[styles.container, { flexDirection: "row" }]}>
-        {colorsUsed.map((color) => (
-          <Chip
-            key={color.toString()}
-            color={color}
-            count={totalChipsCount[colors.indexOf(color)] ?? 0}
-            setShowModal={setShowModal}
-          />
-        ))}
+        {colorsUsed.map((color) => {
+          const chipCount = totalChipsCount[colors.indexOf(color)] ?? 0;
+          return (
+            <Chip
+              key={color.toString()}
+              color={color}
+              count={chipCount}
+              setShowModal={setShowModal}
+            />
+          );
+        })}
       </View>
       <Button
         title="+"
