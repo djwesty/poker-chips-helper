@@ -138,6 +138,7 @@ const IndexScreen: React.FC = () => {
         title={i18n.t("select_number_of_players")}
         iconName={"people"}
         orientation="row"
+        contentStyle={{ justifyContent: "center", gap: 30 }}
       >
         <PlayerSelector
           playerCount={playerCount}
@@ -170,6 +171,8 @@ const IndexScreen: React.FC = () => {
       <Section
         title={i18n.t("manual_chip_adjustment")}
         iconName={"account-balance"}
+        orientation="row"
+        contentStyle={{ alignItems: "center" }}
       >
         <ChipsSelector
           totalChipsCount={totalChipsCount}

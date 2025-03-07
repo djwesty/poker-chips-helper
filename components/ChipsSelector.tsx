@@ -163,6 +163,13 @@ const ChipsSelector = ({
 
   return (
     <>
+      <Button
+        title="-"
+        onPress={() => {
+          setNumberOfChips(Math.max(1, numberOfChips - 1));
+        }}
+        disabled={numberOfChips == 1}
+      />
       <View style={[styles.container, { flexDirection: "row" }]}>
         {colorsUsed.map((color) => (
           <Chip
@@ -173,22 +180,13 @@ const ChipsSelector = ({
           />
         ))}
       </View>
-      <View style={[styles.container, { flexDirection: "row" }]}>
-        <Button
-          title="-"
-          onPress={() => {
-            setNumberOfChips(Math.max(1, numberOfChips - 1));
-          }}
-          disabled={numberOfChips == 1}
-        />
-        <Button
-          title="+"
-          onPress={() => {
-            setNumberOfChips(Math.min(5, numberOfChips + 1));
-          }}
-          disabled={numberOfChips == 5}
-        />
-      </View>
+      <Button
+        title="+"
+        onPress={() => {
+          setNumberOfChips(Math.min(5, numberOfChips + 1));
+        }}
+        disabled={numberOfChips == 5}
+      />
 
       <ChipInputModal
         showModal={showModal}

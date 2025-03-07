@@ -9,17 +9,19 @@ const titleCase = (input: string) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 
-//Higher Order Component (HOC) for styling purposes
+// Wrapper container for styling purposes
 const Section = ({
   title,
   iconName,
   children,
   orientation = "column",
+  contentStyle = {},
 }: {
   title: string;
   iconName: string | any;
   children: React.JSX.Element;
   orientation?: "row" | "column";
+  contentStyle?: object;
 }) => {
   return (
     <View style={styles.container}>
@@ -32,7 +34,13 @@ const Section = ({
         />
         <Text style={styles.title}>{titleCase(title)}</Text>
       </View>
-      <View style={{ ...styles.content, flexDirection: orientation }}>
+      <View
+        style={{
+          ...styles.content,
+          ...contentStyle,
+          flexDirection: orientation,
+        }}
+      >
         {children}
       </View>
     </View>
