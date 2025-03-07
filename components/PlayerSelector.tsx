@@ -23,19 +23,17 @@ const PlayerSelector: React.FC<PlayerSelectorProps> = ({
 
   return (
     <>
+      <Button
+        title="-"
+        onPress={decreasePlayers}
+        disabled={playerCount <= MIN}
+      />
       <Text style={styles.h1}>{playerCount}</Text>
-      <View style={{ flexDirection: "row", gap: 10 }}>
-        <Button
-          title="-"
-          onPress={decreasePlayers}
-          disabled={playerCount <= MIN}
-        />
-        <Button
-          title="+"
-          onPress={increasePlayers}
-          disabled={playerCount >= MAX}
-        />
-      </View>
+      <Button
+        title="+"
+        onPress={increasePlayers}
+        disabled={playerCount >= MAX}
+      />
     </>
   );
 };
