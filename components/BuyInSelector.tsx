@@ -61,7 +61,7 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
       />
 
       <Text style={styles.h2}>
-        {`${i18n.t("selected_buy_in")}: `}
+        {`${i18n.t("selected_buy_in")} `}
         {buyInAmount !== null
           ? `${selectedCurrency} ${buyInAmount}`
           : i18n.t("none")}

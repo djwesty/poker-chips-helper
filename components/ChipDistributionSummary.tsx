@@ -12,6 +12,8 @@ interface ChipDistributionSummaryProps {
   selectedCurrency: string;
 }
 
+const reverseFib: number[] = [8, 5, 3, 2, 1];
+
 const ChipDistributionSummary = ({
   playerCount,
   buyInAmount,
@@ -47,6 +49,8 @@ const ChipDistributionSummary = ({
     return current;
   };
 
+  // Bound for the value of the highest chip
+  // This is somewhat arbitray, but 1/3 to 1/4 is reasonable depending on the number of colors.
   const maxDenomination = useMemo(() => {
     if (totalChipsCount.length > 3) {
       return findFloorDenomination(buyInAmount / 3);
@@ -60,6 +64,7 @@ const ChipDistributionSummary = ({
     [buyInAmount, playerCount]
   );
 
+  // The total value of all chips distributed to a single player. Ideally should be equal to buyInAmount
   const totalValue = useMemo(() => {
     let value = 0;
     for (let i = 0; i < totalChipsCount.length; i++) {
@@ -68,11 +73,14 @@ const ChipDistributionSummary = ({
     return value;
   }, [distributions, denominations]);
 
+  // Maximum quantity of each chip color which may be distributed to a single player before running out
   const maxPossibleDistribution = useMemo(
     () => totalChipsCount.map((v) => Math.floor(v / playerCount)),
     [totalChipsCount, playerCount]
   );
 
+  // Redenominate the chips in case of failure to properly distribute.
+  // Move the shuffle index to the next lowest denomination, and keep all else same
   const redenominate = useCallback(
     (
       invalidDenomination: validDenomination[],
@@ -102,6 +110,7 @@ const ChipDistributionSummary = ({
     []
   );
 
+  // Dynamically set denominations and distributions from changing inputs
   useEffect(() => {
     let testDenomination: validDenomination[] = [];
     const numColors = totalChipsCount.length;
@@ -110,6 +119,7 @@ const ChipDistributionSummary = ({
       testDistribution.push(0);
     }
 
+    // Start with max denominations, then push on the next adjacent lower denomination
     testDenomination.push(maxDenomination);
     let currentDenominationIndex: number =
       validDenominations.indexOf(maxDenomination);
@@ -120,6 +130,9 @@ const ChipDistributionSummary = ({
     }
     testDenomination.reverse();
 
+    // Distribute the chips using the test denomination
+    // If distribution fails to equal the buy-in, redenominate and re-try
+    // Algorithm could be improved with more complexity and optimization
     let remainingValue = buyInAmount;
     let fail = true;
     let failCount = 0;
@@ -162,6 +175,7 @@ const ChipDistributionSummary = ({
             <Text
               style={{
                 ...styles.h2,
+                fontWeight: "bold",
                 color: colors[index],
                 ...(colors[index] === "white" && styles.shadow),
               }}
