@@ -2,6 +2,13 @@ import React from "react";
 import { render } from "@testing-library/react-native";
 import ChipDistributionSummary from "../ChipDistributionSummary";
 
+jest.mock("@expo/vector-icons", () => {
+  const { Text } = require("react-native");
+  return {
+    MaterialIcons: () => <Text>TestIcon</Text>,
+  };
+});
+
 describe("ChipDistributionSummary Component", () => {
   test("renders correctly with valid data", () => {
     const playerCount = 4;

@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import { ColorValue } from "react-native";
 import i18n from "@/i18n/i18n";
-import styles from "@/styles/styles";
+import styles, { COLORS } from "@/styles/styles";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface ChipDistributionSummaryProps {
   playerCount: number;
@@ -26,6 +27,10 @@ const ChipDistributionSummary = ({
   ];
   const [denominations, setDenominations] = useState<validDenomination[]>([]);
   const [distributions, setDistributions] = useState<number[]>([]);
+
+  const showAlert = () => {
+    Alert.alert(i18n.t("warning"), i18n.t("chip_value_warn"));
+  };
 
   type validDenomination =
     | 0.05
@@ -171,9 +176,19 @@ const ChipDistributionSummary = ({
         })}
       </View>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <Text style={styles.p}>
-          {i18n.t("total_value")}: {selectedCurrency} {round(totalValue)}
-        </Text>
+        <View style={[styles.container, { flexDirection: "row", gap: 1 }]}>
+          <Text style={styles.p}>
+            {i18n.t("total_value")}: {selectedCurrency} {round(totalValue)}{" "}
+          </Text>
+          {round(totalValue) !== buyInAmount && (
+            <MaterialIcons
+              name="warning"
+              size={20}
+              color={COLORS.WARNING}
+              onPress={showAlert}
+            />
+          )}
+        </View>
         <Text style={styles.p}>
           {selectedCurrency} {potValue} {i18n.t("pot")}
         </Text>

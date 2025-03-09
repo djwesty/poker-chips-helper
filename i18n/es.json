@@ -37,6 +37,7 @@
     "failed_to_save_state": "No se pudo guardar el estado.",
     "state_loaded_from": "Estado cargado desde",
     "info": "Información",
+    "warning": "Advertencia",
     "no_saved_state_found": "No se encontró estado guardado.",
     "automatic_chip_detection": "Detección automática de fichas",
     "manual_chip_adjustment": "Ajuste manual de fichas",
@@ -45,6 +46,7 @@
     "save_slot_2": "Guardar\nSlot 2",
     "load_slot_1": "Cargar\nSlot 1",
     "load_slot_2": "Cargar\nSlot 2",
-    "please_select_valid_buyin": "Por favor seleccione una cantidad de buy-in válida"
+    "please_select_valid_buyin": "Por favor seleccione una cantidad de buy-in válida",
+    "chip_value_warn": "Tenga en cuenta que el valor de las fichas distribuidas no es igual al buy-in para estas entradas.\n\nSin embargo, los resultados que se muestran son justos para todos los jugadores."
   }
 }

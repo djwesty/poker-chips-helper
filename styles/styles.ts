@@ -5,7 +5,7 @@ export const COLORS = {
   SECONDARY: "#6c757d",
   SUCCESS: "#28a745",
   DANGER: "#dc3545",
-  WARNING: "#ffc107",
+  WARNING: "#c79c28",
 };
 
 const lightStyles = StyleSheet.create({});
