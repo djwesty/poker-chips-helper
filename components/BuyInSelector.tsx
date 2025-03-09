@@ -58,14 +58,12 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
         ))}
       </View>
 
-      <Text style={styles.p}>{i18n.t("custom_buy_in")}</Text>
-
       <TextInput
         style={styles.input}
         value={customAmount}
         maxLength={3}
         onChangeText={handleCustomAmountChange}
-        placeholder={i18n.t("enter_custom_buy_in")}
+        placeholder={`${i18n.t("custom_buy_in")} ${MIN} - ${MAX}`}
         keyboardType="numeric"
       />
 
