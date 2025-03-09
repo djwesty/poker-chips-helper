@@ -7,8 +7,8 @@ describe("ChipDistributionSummary Component", () => {
     const playerCount = 4;
     const totalChipsCount = [100, 80, 60, 40, 20];
     const buyInAmount = 20;
-    const expectedDistribution = [2, 2, 1, 2, 2];
-    const expectedDenominations = [0.5, 1, 2, 2.5, 5];
+    const expectedDistribution = [16, 12, 8, 6, 2];
+    const expectedDenominations = [0.05, 0.1, 0.25, 1, 5];
 
     const { getByText } = render(
       <ChipDistributionSummary

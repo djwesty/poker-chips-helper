@@ -39,7 +39,9 @@ describe("BuyInSelector Component", () => {
     expect(getByText("$ 10")).toBeTruthy();
     expect(getByText("$ 25")).toBeTruthy();
     expect(getByText("$ 50")).toBeTruthy();
-    expect(getByPlaceholderText("Enter custom buy-in")).toBeTruthy();
+    expect(
+      getByPlaceholderText("Or, enter a custom amount: 1 - 200")
+    ).toBeTruthy();
     expect(queryByText(/Selected Buy-in:.*None/i)).toBeTruthy();
   });
 
@@ -53,24 +55,36 @@ describe("BuyInSelector Component", () => {
   it("sets a custom buy-in amount correctly", () => {
     const { getByPlaceholderText } = renderComponent();
 
-    fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "100");
+    fireEvent.changeText(
+      getByPlaceholderText("Or, enter a custom amount: 1 - 200"),
+      "100"
+    );
     expect(setBuyInAmount).toHaveBeenCalledWith(100);
   });
 
-  it("resets custom amount if invalid input is entered", () => {
+  it("bound and validate custom amount if invalid input is entered", () => {
     const { getByPlaceholderText } = renderComponent();
 
-    fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "-10");
-    expect(setBuyInAmount).toHaveBeenCalledWith(25); // Default reset
+    fireEvent.changeText(
+      getByPlaceholderText("Or, enter a custom amount: 1 - 200"),
+      "-10"
+    );
+    expect(setBuyInAmount).toHaveBeenCalledWith(1); // Min value
 
-    fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "abc");
-    expect(setBuyInAmount).toHaveBeenCalledWith(25);
+    fireEvent.changeText(
+      getByPlaceholderText("Or, enter a custom amount: 1 - 200"),
+      "abc"
+    );
+    expect(setBuyInAmount).toHaveBeenCalledWith(1);
   });
 
   it("clears the custom amount when selecting a predefined option", () => {
     const { getByPlaceholderText, getByText } = renderComponent();
 
-    fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "100");
+    fireEvent.changeText(
+      getByPlaceholderText("Or, enter a custom amount: 1 - 200"),
+      "100"
+    );
     fireEvent.press(getByText("$ 50"));
     expect(setBuyInAmount).toHaveBeenCalledWith(50);
   });
@@ -78,13 +92,22 @@ describe("BuyInSelector Component", () => {
   it("handles valid and invalid input for custom amount correctly", () => {
     const { getByPlaceholderText } = renderComponent();
 
-    fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "75");
+    fireEvent.changeText(
+      getByPlaceholderText("Or, enter a custom amount: 1 - 200"),
+      "75"
+    );
     expect(setBuyInAmount).toHaveBeenCalledWith(75);
 
-    fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "-5");
-    expect(setBuyInAmount).toHaveBeenCalledWith(25);
+    fireEvent.changeText(
+      getByPlaceholderText("Or, enter a custom amount: 1 - 200"),
+      "-5"
+    );
+    expect(setBuyInAmount).toHaveBeenCalledWith(1);
 
-    fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "abc");
+    fireEvent.changeText(
+      getByPlaceholderText("Or, enter a custom amount: 1 - 200"),
+      "abc"
+    );
     expect(setBuyInAmount).toHaveBeenCalledWith(25);
   });
 
@@ -98,7 +121,7 @@ describe("BuyInSelector Component", () => {
 
   it("resets to default buy-in when custom input is cleared", () => {
     const { getByPlaceholderText } = renderComponent();
-    const input = getByPlaceholderText("Enter custom buy-in");
+    const input = getByPlaceholderText("Or, enter a custom amount: 1 - 200");
 
     fireEvent.changeText(input, "75");
     expect(setBuyInAmount).toHaveBeenCalledWith(75);
@@ -110,7 +133,10 @@ describe("BuyInSelector Component", () => {
   it("updates state correctly when selecting predefined buy-in after entering a custom amount", () => {
     const { getByPlaceholderText, getByText } = renderComponent();
 
-    fireEvent.changeText(getByPlaceholderText("Enter custom buy-in"), "200");
+    fireEvent.changeText(
+      getByPlaceholderText("Or, enter a custom amount: 1 - 200"),
+      "200"
+    );
     expect(setBuyInAmount).toHaveBeenCalledWith(200);
 
     fireEvent.press(getByText("$ 10"));
