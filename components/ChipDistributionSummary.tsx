@@ -179,20 +179,24 @@ const ChipDistributionSummary = ({
   return (
     <>
       <View style={styles.container}>
-        {denominations.map((denomination, index) => (
-          <View style={{ flexDirection: "row" }} key={index}>
-            <Text
-              style={{
-                ...styles.h2,
-                fontWeight: "bold",
-                color: colors[index],
-                ...(colors[index] === "white" && styles.shadow),
-              }}
-            >
-              {`${distributions[index]} ${i18n.t("chips")}: ${selectedCurrency}${denomination} ${i18n.t("each")}`}
-            </Text>
-          </View>
-        ))}
+        {distributions.map((distribution, index) => {
+          return (
+            distribution > 0 && (
+              <View style={{ flexDirection: "row" }} key={index}>
+                <Text
+                  style={{
+                    ...styles.h2,
+                    fontWeight: "bold",
+                    color: colors[index],
+                    ...(colors[index] === "white" && styles.shadow),
+                  }}
+                >
+                  {`${distribution} ${i18n.t("chips")}: ${selectedCurrency}${denominations[index]} ${i18n.t("each")}`}
+                </Text>
+              </View>
+            )
+          );
+        })}
       </View>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={styles.p}>
