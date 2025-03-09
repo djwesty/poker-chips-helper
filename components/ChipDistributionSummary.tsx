@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import { ColorValue } from "react-native";
 import i18n from "@/i18n/i18n";
 import styles from "@/styles/styles";
@@ -22,7 +22,7 @@ const ChipDistributionSummary = ({
   selectedCurrency = "$",
 }: ChipDistributionSummaryProps) => {
   const validDenominations: validDenomination[] = [
-    0.05, 0.1, 0.25, 0.5, 1, 2, 2.5, 5, 10, 20, 50, 100,
+    0.05, 0.1, 0.25, 1, 5, 10, 20, 50, 100,
   ];
   const [denominations, setDenominations] = useState<validDenomination[]>([]);
   const [distributions, setDistributions] = useState<number[]>([]);
@@ -38,26 +38,38 @@ const ChipDistributionSummary = ({
     | 5
     | 10
     | 20
+    | 25
     | 50
     | 100;
 
   const findFloorDenomination = (target: number): validDenomination => {
     let current: validDenomination = validDenominations[0];
-    validDenominations.forEach((value, index) => {
+    validDenominations.forEach((value, _) => {
       if (value < target) current = value;
     });
     return current;
   };
 
   // Bound for the value of the highest chip
-  // This is somewhat arbitray, but 1/3 to 1/4 is reasonable depending on the number of colors.
-  const maxDenomination = useMemo(() => {
-    if (totalChipsCount.length > 3) {
-      return findFloorDenomination(buyInAmount / 3);
-    } else {
-      return findFloorDenomination(buyInAmount / 4);
+  // This is somewhat arbitray and imperfect, but 1/3 to 1/5 is reasonable depending on the number of colors.
+  const maxDenomination: validDenomination = useMemo(() => {
+    let max: validDenomination;
+    switch (totalChipsCount.length) {
+      case 5:
+      case 4:
+        max = findFloorDenomination(buyInAmount / 3);
+        break;
+      case 3:
+        max = findFloorDenomination(buyInAmount / 4);
+        break;
+      case 2:
+      case 1:
+      default:
+        max = findFloorDenomination(buyInAmount / 5);
+        break;
     }
-  }, [totalChipsCount]);
+    return max;
+  }, [totalChipsCount, buyInAmount]);
 
   const potValue = useMemo(
     () => buyInAmount * playerCount,
@@ -67,7 +79,7 @@ const ChipDistributionSummary = ({
   // The total value of all chips distributed to a single player. Ideally should be equal to buyInAmount
   const totalValue = useMemo(() => {
     let value = 0;
-    for (let i = 0; i < totalChipsCount.length; i++) {
+    for (let i = 0; i < distributions.length; i++) {
       value += distributions[i] * denominations[i];
     }
     return value;
@@ -81,7 +93,7 @@ const ChipDistributionSummary = ({
 
   // Redenominate the chips in case of failure to properly distribute.
   // Move the shuffle index to the next lowest denomination, and keep all else same
-  const redenominate = useCallback(
+  const _redenominate = useCallback(
     (
       invalidDenomination: validDenomination[],
       shuffleIndex: number
@@ -113,56 +125,53 @@ const ChipDistributionSummary = ({
   // Dynamically set denominations and distributions from changing inputs
   useEffect(() => {
     let testDenomination: validDenomination[] = [];
-    const numColors = totalChipsCount.length;
-    const testDistribution: number[] = [];
-    for (let i = 0; i < numColors; ++i) {
-      testDistribution.push(0);
-    }
+    const totalNumColors = totalChipsCount.length;
 
     // Start with max denominations, then push on the next adjacent lower denomination
     testDenomination.push(maxDenomination);
     let currentDenominationIndex: number =
       validDenominations.indexOf(maxDenomination);
-    for (let i = numColors - 2; i >= 0; i = i - 1) {
+    for (
+      let i = totalNumColors - 2;
+      i >= 0 && currentDenominationIndex > 0;
+      i = i - 1
+    ) {
       currentDenominationIndex -= 1;
       const currentDemoniation = validDenominations[currentDenominationIndex];
       testDenomination.push(currentDemoniation);
     }
     testDenomination.reverse();
+    let numColors = testDenomination.length;
+
+    const testDistribution: number[] = [];
+    for (let i = 0; i < numColors; ++i) {
+      testDistribution.push(0);
+    }
 
     // Distribute the chips using the test denomination
     // If distribution fails to equal the buy-in, redenominate and re-try
     // Algorithm could be improved with more complexity and optimization
     let remainingValue = buyInAmount;
-    let fail = true;
-    let failCount = 0;
-    while (fail && failCount < 1) {
-      let stop = false;
-      while (remainingValue > 0 && !stop) {
-        let distributed = false;
-        for (let i = numColors - 1; i >= 0; i = i - 1) {
-          if (testDistribution[i] < maxPossibleDistribution[i]) {
-            if (remainingValue >= testDenomination[i]) {
-              testDistribution[i] = testDistribution[i] + 1;
-              remainingValue = remainingValue - testDenomination[i];
-              distributed = true;
-            }
+    let stop = false;
+    while (remainingValue > 0 && !stop) {
+      let distributed = false;
+      for (let i = numColors - 1; i >= 0; i = i - 1) {
+        if (testDistribution[i] < maxPossibleDistribution[i]) {
+          for (
+            let j = reverseFib[i];
+            j > 0 && remainingValue >= testDenomination[i];
+            j = j - 1
+          ) {
+            testDistribution[i] = testDistribution[i] + 1;
+            remainingValue = remainingValue - testDenomination[i];
+            distributed = true;
           }
         }
-        if (distributed == false) {
-          stop = true;
-        }
       }
-      if (remainingValue !== 0) {
-        const redenominateIndex = failCount % numColors;
-        testDenomination = redenominate(testDenomination, redenominateIndex);
-        failCount += 1;
-        fail = true;
-      } else {
-        fail = false;
+      if (distributed == false) {
+        stop = true;
       }
     }
-
     setDenominations(testDenomination);
     setDistributions(testDistribution);
   }, [totalChipsCount, maxDenomination, buyInAmount, playerCount]);
@@ -170,7 +179,7 @@ const ChipDistributionSummary = ({
   return (
     <>
       <View style={styles.container}>
-        {totalChipsCount.map((_, index) => (
+        {denominations.map((denomination, index) => (
           <View style={{ flexDirection: "row" }} key={index}>
             <Text
               style={{
@@ -180,7 +189,7 @@ const ChipDistributionSummary = ({
                 ...(colors[index] === "white" && styles.shadow),
               }}
             >
-              {`${distributions[index]} ${i18n.t("chips")}: ${selectedCurrency}${denominations[index]} ${i18n.t("each")}`}
+              {`${distributions[index]} ${i18n.t("chips")}: ${selectedCurrency}${denomination} ${i18n.t("each")}`}
             </Text>
           </View>
         ))}
