@@ -50,8 +50,11 @@ const ChipDistributionSummary = ({
     return current;
   };
 
+  const round = useCallback((num: number) => Math.round(num * 100) / 100, []);
+
   // Bound for the value of the highest chip
   // This is somewhat arbitray and imperfect, but 1/3 to 1/5 is reasonable depending on the number of colors.
+  // Could be possibly improved based on value of buy in amount
   const maxDenomination: validDenomination = useMemo(() => {
     let max: validDenomination;
     switch (totalChipsCount.length) {
@@ -91,37 +94,6 @@ const ChipDistributionSummary = ({
     [totalChipsCount, playerCount]
   );
 
-  // Redenominate the chips in case of failure to properly distribute.
-  // Move the shuffle index to the next lowest denomination, and keep all else same
-  const _redenominate = useCallback(
-    (
-      invalidDenomination: validDenomination[],
-      shuffleIndex: number
-    ): validDenomination[] => {
-      let moved = false;
-      const newDenomination: validDenomination[] = [];
-      for (let i = invalidDenomination.length - 1; i >= 0; i--) {
-        if (i > shuffleIndex) {
-          newDenomination.push(invalidDenomination[i]);
-        } else if (i == shuffleIndex) {
-          newDenomination.push(invalidDenomination[i]);
-        } else if (i < shuffleIndex && !moved) {
-          const nextLowestDenominationIndex = Math.max(
-            validDenominations.indexOf(invalidDenomination[i]) - 1,
-            0
-          );
-          newDenomination.push(validDenominations[nextLowestDenominationIndex]);
-          moved = true;
-        } else {
-          newDenomination.push(invalidDenomination[i]);
-        }
-      }
-      newDenomination.reverse();
-      return newDenomination;
-    },
-    []
-  );
-
   // Dynamically set denominations and distributions from changing inputs
   useEffect(() => {
     let testDenomination: validDenomination[] = [];
@@ -148,24 +120,24 @@ const ChipDistributionSummary = ({
       testDistribution.push(0);
     }
 
-    // Distribute the chips using the test denomination
-    // If distribution fails to equal the buy-in, redenominate and re-try
-    // Algorithm could be improved with more complexity and optimization
+    // Distribute the chips using the test denomination with a reverse fibbonaci preference
+    // Not optimal, nor correct under all inputs but works for most inputs
+    // Algorithm could be improved with more complexity and optimization (re-tries, redenominating, etc.)
     let remainingValue = buyInAmount;
     let stop = false;
     while (remainingValue > 0 && !stop) {
       let distributed = false;
       for (let i = numColors - 1; i >= 0; i = i - 1) {
-        if (testDistribution[i] < maxPossibleDistribution[i]) {
-          for (
-            let j = reverseFib[i];
-            j > 0 && remainingValue >= testDenomination[i];
-            j = j - 1
-          ) {
-            testDistribution[i] = testDistribution[i] + 1;
-            remainingValue = remainingValue - testDenomination[i];
-            distributed = true;
-          }
+        for (
+          let j = reverseFib[i];
+          j > 0 &&
+          remainingValue >= testDenomination[i] &&
+          testDistribution[i] < maxPossibleDistribution[i];
+          j = j - 1
+        ) {
+          testDistribution[i] = testDistribution[i] + 1;
+          remainingValue = round(remainingValue - testDenomination[i]);
+          distributed = true;
         }
       }
       if (distributed == false) {
@@ -200,7 +172,7 @@ const ChipDistributionSummary = ({
       </View>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={styles.p}>
-          {i18n.t("total_value")}: {selectedCurrency} {totalValue.toFixed(2)}
+          {i18n.t("total_value")}: {selectedCurrency} {round(totalValue)}
         </Text>
         <Text style={styles.p}>
           {selectedCurrency} {potValue} {i18n.t("pot")}
