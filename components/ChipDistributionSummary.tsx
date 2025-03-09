@@ -196,7 +196,7 @@ const ChipDistributionSummary = ({
       </View>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={styles.p}>
-          {i18n.t("total_value")}: {selectedCurrency} {totalValue}
+          {i18n.t("total_value")}: {selectedCurrency} {totalValue.toFixed(2)}
         </Text>
         <Text style={styles.p}>
           {selectedCurrency} {potValue} {i18n.t("pot")}
