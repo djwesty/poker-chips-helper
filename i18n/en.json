@@ -8,8 +8,7 @@
     "inr": "INR (₹)",
     "select_number_of_players": "Select the Number of Players:",
     "select_buyin_amount": "Select Buy-in Amount:",
-    "custom_buy_in": "Or enter a custom amount:",
-    "enter_custom_buy_in": "Enter custom buy-in",
+    "custom_buy_in": "Or, enter a custom amount:",
     "selected_buy_in": "Selected Buy-in:",
     "none": "None",
     "pick_an_image": "Pick an image",
@@ -37,6 +36,7 @@
     "failed_to_save_state": "Failed to save state.",
     "state_loaded_from": "State loaded from",
     "info": "Info",
+    "warning": "Warning",
     "no_saved_state_found": "No saved state found.",
     "automatic_chip_detection": "Automatic Chip Detection",
     "manual_chip_adjustment": "Manual Chip Adjustment",
@@ -45,6 +45,7 @@
     "save_slot_2": "Save\nSlot 2",
     "load_slot_1": "Load\nSlot 1",
     "load_slot_2": "Load\nSlot 2",
-    "please_select_valid_buyin": "Please select a valid buy-in amount"
+    "please_select_valid_buyin": "Please select a valid buy-in amount",
+    "chip_value_warn": "Be advised that the value of the distributed chips does not equal the buy-in for these inputs.\n\nHowever, results shown are fair to all players"
   }
 }

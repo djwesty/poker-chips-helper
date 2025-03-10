@@ -14,6 +14,7 @@ import styles from "@/styles/styles";
 import i18n from "@/i18n/i18n";
 
 const colors: ColorValue[] = ["white", "red", "green", "blue", "black"];
+const defaults = [100, 50, 50, 50, 50];
 
 const ChipInputModal = ({
   showModal,
@@ -152,7 +153,7 @@ const ChipsSelector = ({
       } else if (numberOfChips > totalChipsCount.length) {
         for (let colorIndex = 0; colorIndex < numberOfChips; ++colorIndex) {
           if (colorIndex >= newTotalChipsCount.length) {
-            const defaultTotal = 100 - colorIndex * 20;
+            const defaultTotal = defaults[colorIndex];
             newTotalChipsCount.push(defaultTotal);
           }
         }
