@@ -40,7 +40,7 @@ describe("ChipDetection", () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks(); // Reset all mocks to prevent test contamination
+    jest.restoreAllMocks();
   });
 
   it("renders correctly", () => {
@@ -83,7 +83,11 @@ describe("ChipDetection", () => {
     fireEvent.press(getByText(/take a photo/i));
 
     await waitFor(() =>
-      expect(mockUpdateChipCount).toHaveBeenCalledWith({ red: 5, green: 3 })
+      expect(mockUpdateChipCount).toHaveBeenCalledWith({
+        red: 5,
+        green: 3,
+        blue: 0,
+      })
     );
   });
 
@@ -144,7 +148,7 @@ describe("ChipDetection", () => {
             choices: [
               {
                 message: {
-                  content: JSON.stringify({ red: 5, green: 3 }),
+                  content: JSON.stringify({ red: 5, green: 3, blue: 0 }),
                 },
               },
             ],
@@ -163,6 +167,7 @@ describe("ChipDetection", () => {
       expect(mockUpdateChipCount).toHaveBeenCalledWith({
         red: 5,
         green: 3,
+        blue: 0,
       })
     );
   });
