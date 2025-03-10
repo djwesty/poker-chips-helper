@@ -16,6 +16,8 @@ const ChipDetection = ({
     Record<string, number>
   >({});
 
+  const chipColors = ["white", "red", "green", "blue", "black"];
+
   const requestCameraPermissions = async () => {
     const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
     return cameraPermission.granted;
@@ -99,9 +101,19 @@ const ChipDetection = ({
       const cleanJSON = rawContent.replace(/```json|```/g, "").trim();
       const parsedData: Record<string, number> = JSON.parse(cleanJSON);
 
-      const filteredData = Object.fromEntries(
-        Object.entries(parsedData).filter(([_, count]) => count > 0)
-      );
+      const filteredData = Object.entries(parsedData)
+        .filter(([color]) => chipColors.includes(color))
+        .sort(
+          ([colorA], [colorB]) =>
+            chipColors.indexOf(colorA) - chipColors.indexOf(colorB)
+        )
+        .reduce(
+          (acc, [color, count]) => {
+            acc[color] = count;
+            return acc;
+          },
+          {} as Record<string, number>
+        );
 
       setLastDetectedChips(filteredData);
       updateChipCount(filteredData);
