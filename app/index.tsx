@@ -164,6 +164,7 @@ const IndexScreen: React.FC = () => {
           updateChipCount={(chipData) => {
             const chipCountArray = Object.values(chipData);
             setTotalChipsCount(chipCountArray);
+            setNumberOfChips(chipCountArray.length);
           }}
         />
       </Section>
