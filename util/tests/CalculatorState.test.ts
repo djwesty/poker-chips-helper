@@ -1,12 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { saveState, loadState, PokerState } from "../CalculatorState";
+import { saveState, loadState, PokerState } from "@/util/CalculatorState";
 
 // Mock AsyncStorage
 jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock")
 );
 
-describe("CalculatorState.tsx", () => {
+describe("CalculatorState.ts", () => {
   const mockState: PokerState = {
     playerCount: 4,
     buyInAmount: 50,

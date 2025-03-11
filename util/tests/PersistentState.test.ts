@@ -3,14 +3,14 @@ import {
   savePersistentState,
   loadPersistentState,
   PokerState,
-} from "../PersistentState";
+} from "@/util/PersistentState";
 
 jest.mock("@react-native-async-storage/async-storage", () => ({
   setItem: jest.fn(),
   getItem: jest.fn(),
 }));
 
-describe("PersistentState.tsx", () => {
+describe("PersistentState.ts", () => {
   const mockState: PokerState = {
     playerCount: 4,
     buyInAmount: 50,
