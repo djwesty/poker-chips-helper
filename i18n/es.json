@@ -47,6 +47,9 @@
     "load_slot_1": "Cargar\nSlot 1",
     "load_slot_2": "Cargar\nSlot 2",
     "please_select_valid_buyin": "Por favor seleccione una cantidad de buy-in válida",
-    "chip_value_warn": "Tenga en cuenta que el valor de las fichas distribuidas no es igual al buy-in para estas entradas.\n\nSin embargo, los resultados que se muestran son justos para todos los jugadores."
+    "chip_value_warn": "Tenga en cuenta que el valor de las fichas distribuidas no es igual al buy-in para estas entradas.\n\nSin embargo, los resultados que se muestran son justos para todos los jugadores.",
+    "appearance": "Apariencia",
+    "switch_to_gray_mode": "Cambiar a Modo Gris",
+    "switch_to_light_mode": "Cambiar a Modo Claro"
   }
 }

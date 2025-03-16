@@ -21,18 +21,19 @@ const ChipInputModal = ({
   setShowModal,
   totalChipsCount,
   update,
+  darkMode,
 }: {
   showModal: [boolean, ColorValue];
   setShowModal: React.Dispatch<React.SetStateAction<[boolean, ColorValue]>>;
   totalChipsCount: number[];
   update: Function;
+  darkMode: boolean;
 }) => {
   const color: ColorValue = useMemo(() => showModal[1], [showModal]);
   const colorIdx = useMemo(() => colors.indexOf(color), [color]);
 
   const [value, setValue] = useState<number | undefined>();
 
-  // Reset the color value when the specific color this modal is for changes
   useEffect(() => {
     setValue(totalChipsCount[colorIdx]);
   }, [colorIdx, totalChipsCount]);
@@ -76,6 +77,7 @@ const ChipInputModal = ({
           update(showModal[1], Number.isNaN(value) ? 0 : value);
           setShowModal([false, color]);
         }}
+        darkMode={darkMode}
       />
     </Modal>
   );
@@ -117,11 +119,13 @@ const ChipsSelector = ({
   totalChipsCount,
   setTotalChipsCount,
   setNumberOfChips,
+  darkMode,
 }: {
   numberOfChips: number;
   totalChipsCount: number[];
   setTotalChipsCount: React.Dispatch<React.SetStateAction<number[]>>;
   setNumberOfChips: React.Dispatch<React.SetStateAction<number>>;
+  darkMode: boolean;
 }) => {
   const [showModal, setShowModal] = useState<[boolean, ColorValue]>([
     false,
@@ -129,11 +133,10 @@ const ChipsSelector = ({
   ]);
 
   const colorsUsed = useMemo(
-    () => colors.slice(0, numberOfChips), // Only show as many colors as the `numberOfChips`
+    () => colors.slice(0, numberOfChips),
     [numberOfChips]
   );
 
-  // Callback for ChipInputModal to update the chips in the parent's state.
   const update = useCallback(
     (color: ColorValue, count: number) => {
       const newTotalChipsCount = totalChipsCount.slice();
@@ -144,7 +147,6 @@ const ChipsSelector = ({
     [totalChipsCount, setTotalChipsCount]
   );
 
-  // Handling number of chips to make sure the array updates accordingly
   useEffect(() => {
     if (numberOfChips !== totalChipsCount.length) {
       let newTotalChipsCount = totalChipsCount.slice();
@@ -169,7 +171,8 @@ const ChipsSelector = ({
         onPress={() => {
           setNumberOfChips(Math.max(1, numberOfChips - 1));
         }}
-        disabled={numberOfChips == 1}
+        disabled={numberOfChips === 1}
+        darkMode={darkMode}
       />
       <View style={[styles.container, { flexDirection: "row" }]}>
         {colorsUsed.map((color) => {
@@ -189,7 +192,8 @@ const ChipsSelector = ({
         onPress={() => {
           setNumberOfChips(Math.min(5, numberOfChips + 1));
         }}
-        disabled={numberOfChips == 5}
+        disabled={numberOfChips === 5}
+        darkMode={darkMode}
       />
 
       <ChipInputModal
@@ -197,40 +201,10 @@ const ChipsSelector = ({
         setShowModal={setShowModal}
         totalChipsCount={totalChipsCount}
         update={update}
+        darkMode={darkMode}
       />
     </>
   );
 };
-
-const styles1 = StyleSheet.create({
-  container: {
-    marginBottom: 20,
-    gap: 10,
-  },
-  title: {
-    fontWeight: "bold",
-    margin: "auto",
-    fontSize: 18,
-  },
-  chipContainer: {
-    padding: 20,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    backgroundColor: "#bbb",
-  },
-  chip: {
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  buttonContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-  },
-  button: {},
-});
 
 export default ChipsSelector;

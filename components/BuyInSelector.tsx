@@ -7,6 +7,7 @@ import i18n from "@/i18n/i18n";
 interface BuyInSelectorProps {
   setBuyInAmount: React.Dispatch<React.SetStateAction<number>>;
   selectedCurrency: string;
+  darkMode: boolean;
 }
 
 const defaultBuyInOptions = [10, 25, 50];
@@ -22,6 +23,7 @@ const parseRoundClamp = (num: string): number => {
 const BuyInSelector: React.FC<BuyInSelectorProps> = ({
   setBuyInAmount,
   selectedCurrency,
+  darkMode,
 }) => {
   const [customAmount, setCustomAmount] = useState("");
   const [buyInAmount, setBuyInAmountState] = useState<number | null>(null);
@@ -51,9 +53,9 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
         {defaultBuyInOptions.map((amount) => (
           <Button
             key={amount}
-            color={buyInAmount === amount ? COLORS.PRIMARY : COLORS.SECONDARY}
             onPress={() => handleBuyInSelection(amount)}
             title={`${selectedCurrency} ${amount}`}
+            darkMode={darkMode}
           />
         ))}
       </View>

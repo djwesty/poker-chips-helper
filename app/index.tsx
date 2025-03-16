@@ -104,6 +104,7 @@ const IndexScreen: React.FC = () => {
                 : i18n.t("switch_to_gray_mode")
             }
             onPress={() => setLightGrayMode(!lightGrayMode)}
+            darkMode={lightGrayMode}
           />
         </Section>
 
@@ -146,6 +147,7 @@ const IndexScreen: React.FC = () => {
           <PlayerSelector
             playerCount={playerCount}
             setPlayerCount={setPlayerCount}
+            darkMode={lightGrayMode}
           />
         </Section>
 
@@ -156,6 +158,7 @@ const IndexScreen: React.FC = () => {
           <BuyInSelector
             selectedCurrency={selectedCurrency}
             setBuyInAmount={setBuyInAmount}
+            darkMode={lightGrayMode}
           />
         </Section>
 
@@ -169,6 +172,7 @@ const IndexScreen: React.FC = () => {
               setTotalChipsCount(chipCountArray);
               setNumberOfChips(chipCountArray.length);
             }}
+            darkMode={lightGrayMode}
           />
         </Section>
 
@@ -183,6 +187,7 @@ const IndexScreen: React.FC = () => {
             setTotalChipsCount={setTotalChipsCount}
             numberOfChips={numberOfChips}
             setNumberOfChips={setNumberOfChips}
+            darkMode={lightGrayMode}
           />
         </Section>
 
@@ -203,24 +208,30 @@ const IndexScreen: React.FC = () => {
           iconName={"save"}
           orientation="row"
         >
-          <Button
-            title={i18n.t("save_slot_1")}
-            onPress={() => handleSave("SLOT1")}
-            disabled={buyInAmount === null}
-          />
-          <Button
-            title={i18n.t("save_slot_2")}
-            onPress={() => handleSave("SLOT2")}
-            disabled={buyInAmount === null}
-          />
-          <Button
-            title={i18n.t("load_slot_1")}
-            onPress={() => handleLoad("SLOT1")}
-          />
-          <Button
-            title={i18n.t("load_slot_2")}
-            onPress={() => handleLoad("SLOT2")}
-          />
+          <>
+            <Button
+              title={i18n.t("save_slot_1")}
+              onPress={() => handleSave("SLOT1")}
+              disabled={buyInAmount === null}
+              darkMode={lightGrayMode}
+            />
+            <Button
+              title={i18n.t("save_slot_2")}
+              onPress={() => handleSave("SLOT2")}
+              disabled={buyInAmount === null}
+              darkMode={lightGrayMode}
+            />
+            <Button
+              title={i18n.t("load_slot_1")}
+              onPress={() => handleLoad("SLOT1")}
+              darkMode={lightGrayMode}
+            />
+            <Button
+              title={i18n.t("load_slot_2")}
+              onPress={() => handleLoad("SLOT2")}
+              darkMode={lightGrayMode}
+            />
+          </>
         </Section>
       </ScrollView>
     </PokerAppUi>

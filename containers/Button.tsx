@@ -18,6 +18,7 @@ const Button: React.FC<ButtonProps> = ({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
       style={[
         styles.button,
         darkMode ? styles.darkButton : styles.lightButton,

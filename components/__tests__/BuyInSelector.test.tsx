@@ -19,6 +19,7 @@ describe("BuyInSelector Component", () => {
       <BuyInSelector
         setBuyInAmount={setBuyInAmount}
         selectedCurrency={selectedCurrency}
+        darkMode={false}
       />
     );
     return {

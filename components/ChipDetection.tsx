@@ -6,8 +6,10 @@ import i18n from "@/i18n/i18n";
 
 const ChipDetection = ({
   updateChipCount,
+  darkMode,
 }: {
   updateChipCount: (chipData: Record<string, number>) => void;
+  darkMode: boolean;
 }) => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -94,7 +96,7 @@ const ChipDetection = ({
       const result = await response.json();
 
       if (!response.ok || !result.choices || !result.choices[0].message) {
-        throw new Error(i18n.t("invalid_response")); // Translate invalid response error
+        throw new Error(i18n.t("invalid_response"));
       }
 
       const rawContent = result.choices[0].message.content.trim();
@@ -133,8 +135,16 @@ const ChipDetection = ({
           marginBottom: 10,
         }}
       >
-        <Button title={i18n.t("pick_an_image")} onPress={pickImage} />
-        <Button title={i18n.t("take_a_photo")} onPress={takePhoto} />
+        <Button
+          title={i18n.t("pick_an_image")}
+          onPress={pickImage}
+          darkMode={darkMode}
+        />
+        <Button
+          title={i18n.t("take_a_photo")}
+          onPress={takePhoto}
+          darkMode={darkMode}
+        />
       </View>
 
       {imageUri && (

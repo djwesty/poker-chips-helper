@@ -28,6 +28,7 @@ const rend = () =>
       totalChipsCount={TOTAL_CHIPS_COUNT}
       setTotalChipsCount={mocktTotalChipsCount}
       setNumberOfChips={mockSetNumberOfChips}
+      darkMode={false}
     />
   );
 
@@ -82,6 +83,7 @@ describe("tests for ChipsSelector", () => {
       TOTAL_CHIPS_COUNT[4],
     ]);
   });
+
   // skip: There is a jest/DOM issue with the button interaction, despite working correctly in-app. Documented to resolve.
   it.skip("test dec/inc buttons", async () => {
     rend();
