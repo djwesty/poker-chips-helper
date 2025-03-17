@@ -89,24 +89,28 @@ const IndexScreen: React.FC = () => {
   return (
     <PokerAppUi darkMode={lightGrayMode}>
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollViewContent}
+        /*style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}*/
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingHorizontal: 15, paddingBottom: 30 }}
       >
-        <Section
-          title={i18n.t("appearance")}
-          iconName={"brightness-4"}
-          orientation="row"
-        >
-          <Button
-            title={
-              lightGrayMode
-                ? i18n.t("switch_to_light_mode")
-                : i18n.t("switch_to_gray_mode")
-            }
-            onPress={() => setLightGrayMode(!lightGrayMode)}
-            darkMode={lightGrayMode}
-          />
-        </Section>
+        {isSettingsVisible && (
+          <Section
+            title={i18n.t("appearance")}
+            iconName={"brightness-4"}
+            orientation="row"
+          >
+            <Button
+              title={
+                lightGrayMode
+                  ? i18n.t("switch_to_light_mode")
+                  : i18n.t("switch_to_gray_mode")
+              }
+              onPress={() => setLightGrayMode(!lightGrayMode)}
+              darkMode={lightGrayMode}
+            />
+          </Section>
+        )}
 
         {isSettingsVisible && (
           <Section
