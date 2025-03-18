@@ -94,7 +94,7 @@ const ChipDetection = ({
       const result = await response.json();
 
       if (!response.ok || !result.choices || !result.choices[0].message) {
-        throw new Error(i18n.t("invalid_response")); // Translate invalid response error
+        throw new Error(i18n.t("invalid_response"));
       }
 
       const rawContent = result.choices[0].message.content.trim();

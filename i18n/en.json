@@ -46,6 +46,9 @@
     "load_slot_1": "Load\nSlot 1",
     "load_slot_2": "Load\nSlot 2",
     "please_select_valid_buyin": "Please select a valid buy-in amount",
-    "chip_value_warn": "Be advised that the value of the distributed chips does not equal the buy-in for these inputs.\n\nHowever, results shown are fair to all players"
+    "chip_value_warn": "Be advised that the value of the distributed chips does not equal the buy-in for these inputs.\n\nHowever, results shown are fair to all players",
+    "appearance": "Appearance",
+    "switch_to_dark_mode": "Switch to Dark Mode",
+    "switch_to_light_mode": "Switch to Light Mode"
   }
 }

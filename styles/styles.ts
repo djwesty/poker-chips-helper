@@ -1,15 +1,22 @@
 import { StyleSheet } from "react-native";
 
 export const COLORS = {
-  PRIMARY: "#007bff",
-  SECONDARY: "#6c757d",
-  SUCCESS: "#28a745",
-  DANGER: "#dc3545",
   WARNING: "#c79c28",
+  LIGHT: {
+    TEXT: "black",
+    PRIMARY: "lightgrey",
+    SECONDARY: "azure",
+    BACKGROUND: "ghostwhite",
+    DISABLED: "gray",
+  },
+  DARK: {
+    TEXT: "white",
+    PRIMARY: "black",
+    SECONDARY: "teal",
+    BACKGROUND: "dimgrey",
+    DISABLED: "gray",
+  },
 };
-
-const lightStyles = StyleSheet.create({});
-const darkStyles = StyleSheet.create({});
 
 const GlobalStyles = StyleSheet.create({
   scrollView: {},
@@ -25,7 +32,7 @@ const GlobalStyles = StyleSheet.create({
     gap: 10,
   },
 
-  h1: { fontSize: 20, fontWeight: "bold" },
+  h1: { fontSize: 19, fontWeight: "bold" },
   h2: { fontSize: 18, fontWeight: "normal" },
   p: {
     fontSize: 16,
@@ -51,8 +58,14 @@ const GlobalStyles = StyleSheet.create({
     textShadowRadius: 10,
   },
   picker: {
-    height: 50,
+    borderRadius: 10,
+    height: 55,
     width: 150,
+  },
+  pickerItem: {},
+  pickerWrapper: {
+    borderRadius: 10,
+    overflow: "hidden",
   },
 });
 

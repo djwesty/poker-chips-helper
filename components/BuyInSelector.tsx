@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, TextInput } from "react-native";
+import React, { useMemo, useState } from "react";
+import { View, Text, TextInput, useColorScheme } from "react-native";
 import styles, { COLORS } from "@/styles/styles";
 import Button from "@/containers/Button";
 import i18n from "@/i18n/i18n";
@@ -25,6 +25,12 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
 }) => {
   const [customAmount, setCustomAmount] = useState("");
   const [buyInAmount, setBuyInAmountState] = useState<number | null>(null);
+  const colorScheme = useColorScheme();
+  const darkMode = useMemo(() => colorScheme === "dark", [colorScheme]);
+  const colors = useMemo(
+    () => (darkMode ? COLORS.DARK : COLORS.LIGHT),
+    [darkMode]
+  );
 
   const handleCustomAmountChange = (value: string) => {
     const numericValue = parseRoundClamp(value);
@@ -51,7 +57,6 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
         {defaultBuyInOptions.map((amount) => (
           <Button
             key={amount}
-            color={buyInAmount === amount ? COLORS.PRIMARY : COLORS.SECONDARY}
             onPress={() => handleBuyInSelection(amount)}
             title={`${selectedCurrency} ${amount}`}
           />
@@ -59,7 +64,8 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
       </View>
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: colors.TEXT }]}
+        placeholderTextColor={colors.TEXT}
         value={customAmount}
         maxLength={3}
         onChangeText={handleCustomAmountChange}
@@ -67,7 +73,7 @@ const BuyInSelector: React.FC<BuyInSelectorProps> = ({
         keyboardType="numeric"
       />
 
-      <Text style={styles.h2}>
+      <Text style={[styles.h2, { color: colors.TEXT }]}>
         {`${i18n.t("selected_buy_in")} `}
         {buyInAmount !== null
           ? `${selectedCurrency} ${buyInAmount}`
