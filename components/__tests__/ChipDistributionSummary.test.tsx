@@ -1,5 +1,7 @@
 import React from "react";
-import { render } from "@testing-library/react-native";
+import { Alert } from "react-native";
+
+import { fireEvent, render } from "@testing-library/react-native";
 import ChipDistributionSummary from "../ChipDistributionSummary";
 
 jest.mock("@expo/vector-icons", () => {
@@ -35,46 +37,23 @@ describe("ChipDistributionSummary Component", () => {
     });
   });
 
-  test.skip("renders fallback message when no valid distribution", () => {
+  test("renders warning message when needed", async () => {
     const { getByText } = render(
       <ChipDistributionSummary
-        playerCount={0}
-        buyInAmount={20}
+        playerCount={6}
+        buyInAmount={25}
         selectedCurrency={"$"}
-        totalChipsCount={[]}
+        totalChipsCount={[100, 50]}
       />
     );
-    expect(getByText("No valid distribution calculated yet.")).toBeTruthy();
-  });
+    const warning = getByText("TestIcon");
+    expect(warning).toBeTruthy();
 
-  test.skip("scales down chips if exceeding MAX_CHIPS", () => {
-    const playerCount = 2;
-    let totalChipsCount = [300, 400, 500, 600, 700];
-    const MAX_CHIPS = 500;
-    const totalChips = totalChipsCount.reduce((sum, count) => sum + count, 0);
-
-    if (totalChips > MAX_CHIPS) {
-      const scaleFactor = MAX_CHIPS / totalChips;
-      totalChipsCount = totalChipsCount.map((count) =>
-        Math.round(count * scaleFactor)
-      );
-    }
-
-    const expectedDistribution = [30, 40, 50, 60, 70]; // Adjust as per actual component calculations
-
-    const { getByText } = render(
-      <ChipDistributionSummary
-        playerCount={playerCount}
-        buyInAmount={100}
-        totalChipsCount={totalChipsCount}
-        selectedCurrency={"$"}
-      />
+    jest.spyOn(Alert, "alert");
+    fireEvent.press(warning);
+    expect(Alert.alert).toHaveBeenCalledWith(
+      "Warning",
+      `Be advised that the value of the distributed chips does not equal the buy-in for these inputs.\n\nHowever, results shown are fair to all players`
     );
-
-    expect(getByText("Distribution & Denomination")).toBeTruthy();
-
-    expectedDistribution.forEach((count) => {
-      expect(getByText(new RegExp(`^${count}\\s+chips:`, "i"))).toBeTruthy();
-    });
   });
 });
