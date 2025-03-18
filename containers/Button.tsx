@@ -11,9 +11,15 @@ interface ButtonProps {
   title: string;
   onPress: () => void;
   disabled?: boolean;
+  size?: "normal" | "small";
 }
 
-const Button: React.FC<ButtonProps> = ({ title, onPress, disabled }) => {
+const Button: React.FC<ButtonProps> = ({
+  title,
+  onPress,
+  disabled,
+  size = "normal",
+}) => {
   const colorScheme = useColorScheme();
   const darkMode = useMemo(() => colorScheme === "dark", [colorScheme]);
   const colors = useMemo(
@@ -26,12 +32,19 @@ const Button: React.FC<ButtonProps> = ({ title, onPress, disabled }) => {
       disabled={disabled}
       accessibilityRole="button"
       style={[
-        styles.button,
+        size == "normal" ? styles.button : styles.buttonSmall,
         { backgroundColor: colors.PRIMARY },
         disabled && styles.disabled,
       ]}
     >
-      <Text style={[styles.buttonText, { color: colors.TEXT }]}>{title}</Text>
+      <Text
+        style={[
+          size == "normal" ? styles.buttonText : styles.buttonTextSmall,
+          { color: colors.TEXT },
+        ]}
+      >
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -44,22 +57,22 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     marginVertical: 5,
   },
-  darkButton: {
-    backgroundColor: "#333333",
-  },
-  lightButton: {
-    backgroundColor: "#DDDDDD",
-  },
   buttonText: {
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
   },
-  darkText: {
-    color: "#FFFFFF",
+  buttonSmall: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginHorizontal: 2,
+    marginVertical: 2,
   },
-  lightText: {
-    color: "#000000",
+  buttonTextSmall: {
+    fontSize: 12,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   disabled: {
     opacity: 0.5,

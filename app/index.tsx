@@ -15,8 +15,9 @@ import {
 import styles, { COLORS } from "@/styles/styles";
 import Section from "@/containers/Section";
 import AppContext from "@/util/context";
-import { Picker } from "@react-native-picker/picker";
 import i18n from "@/i18n/i18n";
+import { Picker, PickerItem } from "@/containers/Picker";
+import { ItemValue } from "@react-native-picker/picker/typings/Picker";
 
 const IndexScreen: React.FC = () => {
   const [playerCount, setPlayerCount] = useState(2);
@@ -84,9 +85,9 @@ const IndexScreen: React.FC = () => {
     }
   };
 
-  const handleLanguageChange = (language: string) => {
-    setSelectedLanguage(language);
-    i18n.changeLanguage(language);
+  const handleLanguageChange = (language: ItemValue, _: any) => {
+    setSelectedLanguage(language.toString());
+    i18n.changeLanguage(language.toString());
   };
 
   return (
@@ -121,25 +122,9 @@ const IndexScreen: React.FC = () => {
             <Picker
               selectedValue={selectedLanguage}
               onValueChange={handleLanguageChange}
-              style={[styles.picker, { color: colors.TEXT }]}
-              dropdownIconColor={colors.TEXT}
             >
-              <Picker.Item
-                label={i18n.t("english")}
-                value="en"
-                style={{
-                  color: colors.TEXT,
-                  backgroundColor: colors.PRIMARY,
-                }}
-              />
-              <Picker.Item
-                label={i18n.t("spanish")}
-                value="es"
-                style={{
-                  color: colors.TEXT,
-                  backgroundColor: colors.PRIMARY,
-                }}
-              />
+              <PickerItem label={i18n.t("english")} value="en" />
+              <PickerItem label={i18n.t("spanish")} value="es" />
             </Picker>
           </Section>
 
@@ -227,19 +212,23 @@ const IndexScreen: React.FC = () => {
             title={i18n.t("save_slot_1")}
             onPress={() => handleSave("SLOT1")}
             disabled={buyInAmount === null}
+            size="small"
           />
           <Button
             title={i18n.t("save_slot_2")}
             onPress={() => handleSave("SLOT2")}
             disabled={buyInAmount === null}
+            size="small"
           />
           <Button
             title={i18n.t("load_slot_1")}
             onPress={() => handleLoad("SLOT1")}
+            size="small"
           />
           <Button
             title={i18n.t("load_slot_2")}
             onPress={() => handleLoad("SLOT2")}
+            size="small"
           />
         </>
       </Section>

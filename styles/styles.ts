@@ -32,7 +32,7 @@ const GlobalStyles = StyleSheet.create({
     gap: 10,
   },
 
-  h1: { fontSize: 20, fontWeight: "bold" },
+  h1: { fontSize: 19, fontWeight: "bold" },
   h2: { fontSize: 18, fontWeight: "normal" },
   p: {
     fontSize: 16,
@@ -63,6 +63,10 @@ const GlobalStyles = StyleSheet.create({
     width: 150,
   },
   pickerItem: {},
+  pickerWrapper: {
+    borderRadius: 10,
+    overflow: "hidden",
+  },
 });
 
 export default GlobalStyles;
