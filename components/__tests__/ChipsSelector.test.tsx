@@ -28,7 +28,6 @@ const rend = () =>
       totalChipsCount={TOTAL_CHIPS_COUNT}
       setTotalChipsCount={mocktTotalChipsCount}
       setNumberOfChips={mockSetNumberOfChips}
-      darkMode={false}
     />
   );
 

@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import { View, Text, StyleSheet, useColorScheme } from "react-native";
+import React, { useMemo } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
-import globalStyles from "@/styles/styles";
+import globalStyles, { COLORS } from "@/styles/styles";
 
 const titleCase = (input: string) =>
   input
@@ -23,6 +23,12 @@ const Section = ({
   orientation?: "row" | "column";
   contentStyle?: object;
 }) => {
+  const colorScheme = useColorScheme();
+  const darkMode = useMemo(() => colorScheme === "dark", [colorScheme]);
+  const colors = useMemo(
+    () => (darkMode ? COLORS.DARK : COLORS.LIGHT),
+    [darkMode]
+  );
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -30,9 +36,11 @@ const Section = ({
           style={styles.icon}
           name={iconName}
           size={30}
-          color={"black"}
+          color={colors.TEXT}
         />
-        <Text style={styles.title}>{titleCase(title)}</Text>
+        <Text style={[styles.title, { color: colors.TEXT }]}>
+          {titleCase(title)}
+        </Text>
       </View>
       <View
         style={{

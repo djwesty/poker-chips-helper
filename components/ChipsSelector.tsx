@@ -21,13 +21,11 @@ const ChipInputModal = ({
   setShowModal,
   totalChipsCount,
   update,
-  darkMode,
 }: {
   showModal: [boolean, ColorValue];
   setShowModal: React.Dispatch<React.SetStateAction<[boolean, ColorValue]>>;
   totalChipsCount: number[];
   update: Function;
-  darkMode: boolean;
 }) => {
   const color: ColorValue = useMemo(() => showModal[1], [showModal]);
   const colorIdx = useMemo(() => colors.indexOf(color), [color]);
@@ -77,7 +75,6 @@ const ChipInputModal = ({
           update(showModal[1], Number.isNaN(value) ? 0 : value);
           setShowModal([false, color]);
         }}
-        darkMode={darkMode}
       />
     </Modal>
   );
@@ -119,13 +116,11 @@ const ChipsSelector = ({
   totalChipsCount,
   setTotalChipsCount,
   setNumberOfChips,
-  darkMode,
 }: {
   numberOfChips: number;
   totalChipsCount: number[];
   setTotalChipsCount: React.Dispatch<React.SetStateAction<number[]>>;
   setNumberOfChips: React.Dispatch<React.SetStateAction<number>>;
-  darkMode: boolean;
 }) => {
   const [showModal, setShowModal] = useState<[boolean, ColorValue]>([
     false,
@@ -172,7 +167,6 @@ const ChipsSelector = ({
           setNumberOfChips(Math.max(1, numberOfChips - 1));
         }}
         disabled={numberOfChips === 1}
-        darkMode={darkMode}
       />
       <View style={[styles.container, { flexDirection: "row" }]}>
         {colorsUsed.map((color) => {
@@ -193,7 +187,6 @@ const ChipsSelector = ({
           setNumberOfChips(Math.min(5, numberOfChips + 1));
         }}
         disabled={numberOfChips === 5}
-        darkMode={darkMode}
       />
 
       <ChipInputModal
@@ -201,7 +194,6 @@ const ChipsSelector = ({
         setShowModal={setShowModal}
         totalChipsCount={totalChipsCount}
         update={update}
-        darkMode={darkMode}
       />
     </>
   );

@@ -6,10 +6,8 @@ import i18n from "@/i18n/i18n";
 
 const ChipDetection = ({
   updateChipCount,
-  darkMode,
 }: {
   updateChipCount: (chipData: Record<string, number>) => void;
-  darkMode: boolean;
 }) => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -135,16 +133,8 @@ const ChipDetection = ({
           marginBottom: 10,
         }}
       >
-        <Button
-          title={i18n.t("pick_an_image")}
-          onPress={pickImage}
-          darkMode={darkMode}
-        />
-        <Button
-          title={i18n.t("take_a_photo")}
-          onPress={takePhoto}
-          darkMode={darkMode}
-        />
+        <Button title={i18n.t("pick_an_image")} onPress={pickImage} />
+        <Button title={i18n.t("take_a_photo")} onPress={takePhoto} />
       </View>
 
       {imageUri && (

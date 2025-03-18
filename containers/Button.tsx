@@ -1,19 +1,25 @@
-import React from "react";
-import { Text, TouchableOpacity, StyleSheet } from "react-native";
+import { COLORS } from "@/styles/styles";
+import React, { useMemo } from "react";
+import {
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
   disabled?: boolean;
-  darkMode: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({
-  title,
-  onPress,
-  disabled,
-  darkMode,
-}) => {
+const Button: React.FC<ButtonProps> = ({ title, onPress, disabled }) => {
+  const colorScheme = useColorScheme();
+  const darkMode = useMemo(() => colorScheme === "dark", [colorScheme]);
+  const colors = useMemo(
+    () => (darkMode ? COLORS.DARK : COLORS.LIGHT),
+    [darkMode]
+  );
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -21,18 +27,11 @@ const Button: React.FC<ButtonProps> = ({
       accessibilityRole="button"
       style={[
         styles.button,
-        darkMode ? styles.darkButton : styles.lightButton,
+        { backgroundColor: colors.PRIMARY },
         disabled && styles.disabled,
       ]}
     >
-      <Text
-        style={[
-          styles.buttonText,
-          darkMode ? styles.darkText : styles.lightText,
-        ]}
-      >
-        {title}
-      </Text>
+      <Text style={[styles.buttonText, { color: colors.TEXT }]}>{title}</Text>
     </TouchableOpacity>
   );
 };

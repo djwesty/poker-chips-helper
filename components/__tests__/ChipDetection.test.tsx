@@ -45,7 +45,7 @@ describe("ChipDetection", () => {
 
   it("renders correctly", () => {
     const { getByText } = render(
-      <ChipDetection updateChipCount={mockUpdateChipCount} darkMode={false} />
+      <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
 
     expect(getByText(/pick an image/i)).toBeTruthy();
@@ -59,7 +59,7 @@ describe("ChipDetection", () => {
     });
 
     const { getByText } = render(
-      <ChipDetection updateChipCount={mockUpdateChipCount} darkMode={false} />
+      <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
     fireEvent.press(getByText(/pick an image/i));
 
@@ -78,7 +78,7 @@ describe("ChipDetection", () => {
     });
 
     const { getByText } = render(
-      <ChipDetection updateChipCount={mockUpdateChipCount} darkMode={false} />
+      <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
     fireEvent.press(getByText(/take a photo/i));
 
@@ -99,7 +99,7 @@ describe("ChipDetection", () => {
     });
 
     const { getByText } = render(
-      <ChipDetection updateChipCount={mockUpdateChipCount} darkMode={false} />
+      <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
     fireEvent.press(getByText(/take a photo/i));
 
@@ -126,7 +126,7 @@ describe("ChipDetection", () => {
     );
 
     const { getByText } = render(
-      <ChipDetection updateChipCount={mockUpdateChipCount} darkMode={false} />
+      <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
     fireEvent.press(getByText(/pick an image/i));
 
@@ -159,7 +159,7 @@ describe("ChipDetection", () => {
     );
 
     const { getByText } = render(
-      <ChipDetection updateChipCount={mockUpdateChipCount} darkMode={false} />
+      <ChipDetection updateChipCount={mockUpdateChipCount} />
     );
     fireEvent.press(getByText(/pick an image/i));
 

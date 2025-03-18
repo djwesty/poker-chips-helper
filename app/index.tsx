@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
-import { ScrollView, Alert } from "react-native";
+import { ScrollView, Alert, useColorScheme, Appearance } from "react-native";
 import Button from "@/containers/Button";
 import PlayerSelector from "@/components/PlayerSelector";
 import BuyInSelector from "@/components/BuyInSelector";
@@ -12,12 +12,11 @@ import {
   savePersistentState,
   loadPersistentState,
 } from "@/util/PersistentState";
-import styles from "@/styles/styles";
+import styles, { COLORS } from "@/styles/styles";
 import Section from "@/containers/Section";
 import AppContext from "@/util/context";
 import { Picker } from "@react-native-picker/picker";
 import i18n from "@/i18n/i18n";
-import PokerAppUi from "@/containers/PokerAppUi";
 
 const IndexScreen: React.FC = () => {
   const [playerCount, setPlayerCount] = useState(2);
@@ -26,8 +25,12 @@ const IndexScreen: React.FC = () => {
   const [totalChipsCount, setTotalChipsCount] = useState<number[]>([]);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("$");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
-  const [lightGrayMode, setLightGrayMode] = useState<boolean>(false);
-
+  const colorScheme = useColorScheme();
+  const darkMode = useMemo(() => colorScheme === "dark", [colorScheme]);
+  const colors = useMemo(
+    () => (darkMode ? COLORS.DARK : COLORS.LIGHT),
+    [darkMode]
+  );
   const context = useContext(AppContext);
   const isSettingsVisible = useMemo(() => context.showSettings, [context]);
 
@@ -87,14 +90,12 @@ const IndexScreen: React.FC = () => {
   };
 
   return (
-    <PokerAppUi darkMode={lightGrayMode}>
-      <ScrollView
-        /*style={styles.scrollView}
-        contentContainerStyle={styles.scrollViewContent}*/
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingHorizontal: 15, paddingBottom: 30 }}
-      >
-        {isSettingsVisible && (
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={styles.scrollViewContent}
+    >
+      {isSettingsVisible && (
+        <>
           <Section
             title={i18n.t("appearance")}
             iconName={"brightness-4"}
@@ -102,17 +103,16 @@ const IndexScreen: React.FC = () => {
           >
             <Button
               title={
-                lightGrayMode
+                darkMode
                   ? i18n.t("switch_to_light_mode")
-                  : i18n.t("switch_to_gray_mode")
+                  : i18n.t("switch_to_dark_mode")
               }
-              onPress={() => setLightGrayMode(!lightGrayMode)}
-              darkMode={lightGrayMode}
+              onPress={() =>
+                Appearance.setColorScheme(darkMode ? "light" : "dark")
+              }
             />
           </Section>
-        )}
 
-        {isSettingsVisible && (
           <Section
             title={i18n.t("select_language")}
             iconName={"language"}
@@ -121,15 +121,28 @@ const IndexScreen: React.FC = () => {
             <Picker
               selectedValue={selectedLanguage}
               onValueChange={handleLanguageChange}
-              style={styles.picker}
+              style={[styles.picker, { color: colors.TEXT }]}
+              dropdownIconColor={colors.TEXT}
             >
-              <Picker.Item label={i18n.t("english")} value="en" />
-              <Picker.Item label={i18n.t("spanish")} value="es" />
+              <Picker.Item
+                label={i18n.t("english")}
+                value="en"
+                style={{
+                  color: colors.TEXT,
+                  backgroundColor: colors.PRIMARY,
+                }}
+              />
+              <Picker.Item
+                label={i18n.t("spanish")}
+                value="es"
+                style={{
+                  color: colors.TEXT,
+                  backgroundColor: colors.PRIMARY,
+                }}
+              />
             </Picker>
           </Section>
-        )}
 
-        {isSettingsVisible && (
           <Section
             title={i18n.t("select_currency")}
             iconName={"attach-money"}
@@ -140,105 +153,97 @@ const IndexScreen: React.FC = () => {
               setSelectedCurrency={setSelectedCurrency}
             />
           </Section>
-        )}
+        </>
+      )}
 
-        <Section
-          title={i18n.t("select_number_of_players")}
-          iconName={"people"}
-          orientation="row"
-          contentStyle={{ justifyContent: "center", gap: 30 }}
-        >
-          <PlayerSelector
-            playerCount={playerCount}
-            setPlayerCount={setPlayerCount}
-            darkMode={lightGrayMode}
+      <Section
+        title={i18n.t("select_number_of_players")}
+        iconName={"people"}
+        orientation="row"
+        contentStyle={{ justifyContent: "center", gap: 30 }}
+      >
+        <PlayerSelector
+          playerCount={playerCount}
+          setPlayerCount={setPlayerCount}
+        />
+      </Section>
+
+      <Section
+        title={i18n.t("select_buyin_amount")}
+        iconName={"monetization-on"}
+      >
+        <BuyInSelector
+          selectedCurrency={selectedCurrency}
+          setBuyInAmount={setBuyInAmount}
+        />
+      </Section>
+
+      <Section
+        title={i18n.t("automatic_chip_detection")}
+        iconName={"camera-alt"}
+      >
+        <ChipDetection
+          updateChipCount={(chipData) => {
+            const chipCountArray = Object.values(chipData);
+            setTotalChipsCount(chipCountArray);
+            setNumberOfChips(chipCountArray.length);
+          }}
+        />
+      </Section>
+
+      <Section
+        title={i18n.t("manual_chip_adjustment")}
+        iconName={"account-balance"}
+        orientation="row"
+        contentStyle={{ alignItems: "center" }}
+      >
+        <ChipsSelector
+          totalChipsCount={totalChipsCount}
+          setTotalChipsCount={setTotalChipsCount}
+          numberOfChips={numberOfChips}
+          setNumberOfChips={setNumberOfChips}
+        />
+      </Section>
+
+      <Section
+        title={i18n.t("distribution_and_denomination")}
+        iconName={"currency-exchange"}
+      >
+        <ChipDistributionSummary
+          playerCount={playerCount}
+          buyInAmount={buyInAmount}
+          totalChipsCount={totalChipsCount}
+          selectedCurrency={selectedCurrency}
+        />
+      </Section>
+
+      <Section
+        title={i18n.t("save_and_load")}
+        iconName={"save"}
+        orientation="row"
+      >
+        <>
+          <Button
+            title={i18n.t("save_slot_1")}
+            onPress={() => handleSave("SLOT1")}
+            disabled={buyInAmount === null}
           />
-        </Section>
-
-        <Section
-          title={i18n.t("select_buyin_amount")}
-          iconName={"monetization-on"}
-        >
-          <BuyInSelector
-            selectedCurrency={selectedCurrency}
-            setBuyInAmount={setBuyInAmount}
-            darkMode={lightGrayMode}
+          <Button
+            title={i18n.t("save_slot_2")}
+            onPress={() => handleSave("SLOT2")}
+            disabled={buyInAmount === null}
           />
-        </Section>
-
-        <Section
-          title={i18n.t("automatic_chip_detection")}
-          iconName={"camera-alt"}
-        >
-          <ChipDetection
-            updateChipCount={(chipData) => {
-              const chipCountArray = Object.values(chipData);
-              setTotalChipsCount(chipCountArray);
-              setNumberOfChips(chipCountArray.length);
-            }}
-            darkMode={lightGrayMode}
+          <Button
+            title={i18n.t("load_slot_1")}
+            onPress={() => handleLoad("SLOT1")}
           />
-        </Section>
-
-        <Section
-          title={i18n.t("manual_chip_adjustment")}
-          iconName={"account-balance"}
-          orientation="row"
-          contentStyle={{ alignItems: "center" }}
-        >
-          <ChipsSelector
-            totalChipsCount={totalChipsCount}
-            setTotalChipsCount={setTotalChipsCount}
-            numberOfChips={numberOfChips}
-            setNumberOfChips={setNumberOfChips}
-            darkMode={lightGrayMode}
+          <Button
+            title={i18n.t("load_slot_2")}
+            onPress={() => handleLoad("SLOT2")}
           />
-        </Section>
-
-        <Section
-          title={i18n.t("distribution_and_denomination")}
-          iconName={"currency-exchange"}
-        >
-          <ChipDistributionSummary
-            playerCount={playerCount}
-            buyInAmount={buyInAmount}
-            totalChipsCount={totalChipsCount}
-            selectedCurrency={selectedCurrency}
-          />
-        </Section>
-
-        <Section
-          title={i18n.t("save_and_load")}
-          iconName={"save"}
-          orientation="row"
-        >
-          <>
-            <Button
-              title={i18n.t("save_slot_1")}
-              onPress={() => handleSave("SLOT1")}
-              disabled={buyInAmount === null}
-              darkMode={lightGrayMode}
-            />
-            <Button
-              title={i18n.t("save_slot_2")}
-              onPress={() => handleSave("SLOT2")}
-              disabled={buyInAmount === null}
-              darkMode={lightGrayMode}
-            />
-            <Button
-              title={i18n.t("load_slot_1")}
-              onPress={() => handleLoad("SLOT1")}
-              darkMode={lightGrayMode}
-            />
-            <Button
-              title={i18n.t("load_slot_2")}
-              onPress={() => handleLoad("SLOT2")}
-              darkMode={lightGrayMode}
-            />
-          </>
-        </Section>
-      </ScrollView>
-    </PokerAppUi>
+        </>
+      </Section>
+    </ScrollView>
   );
 };
 
