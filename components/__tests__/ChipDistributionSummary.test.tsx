@@ -1,12 +1,7 @@
 import React from "react";
 import { Alert } from "react-native";
 
-import {
-  fireEvent,
-  render,
-  userEvent,
-  waitFor,
-} from "@testing-library/react-native";
+import { fireEvent, render } from "@testing-library/react-native";
 import ChipDistributionSummary from "../ChipDistributionSummary";
 
 jest.mock("@expo/vector-icons", () => {

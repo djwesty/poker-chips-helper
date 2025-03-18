@@ -3,10 +3,7 @@ import {
   userEvent,
   render,
   screen,
-  waitForElementToBeRemoved,
   fireEvent,
-  act,
-  waitFor,
 } from "@testing-library/react-native";
 import ChipsSelector from "@/components/ChipsSelector";
 
